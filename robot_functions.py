@@ -83,7 +83,7 @@ def driveDistance(s, v, acc=150.0, tor=100.0):
 #-----------------------------------------------------------
 def stopMotors():
   print("stop motors")
-  while ((abs(motor_l.speed()) >= 1.0 or abs(motor_l.speed()) >= 1.0)):
+  while ((abs(motor_l.speed()) >= 1.0 or abs(motor_r.speed()) >= 1.0)):
     robot.stop(Stop.HOLD)
   print(("motor speed: ", motor_l.speed(), motor_r.speed()))
 

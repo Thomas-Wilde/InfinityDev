@@ -13,26 +13,33 @@ def task12():
 def task2():
   alignBackward()
   driveDistance(5.0, 300.0)
-  turnRobot(80.0, 300.0)
+  turnRobot(90.0, 300.0)
   driveDistance(17.0, 300.0)
-  turnRobot(-80.0, 300.0)
+  turnRobot(-90.0, 300.0)
   alignBackward()
   driveDistance(59.0,420.0)
   driveDistance(59.0,-550.0)
-  turnRobot(70.0, 400.0)
+  turnRobot(90.0, 400.0)
   driveDistance(-10.0,500.0)
 #------------------------------------------------------------------------#
 
 def final():
   alignBackward()
-  driveDistance(20.0,300.0)
-  turnRobot(82.0,300.0)
-  driveDistance(78.0,400.0)
+  driveDistance(18,200)
+  turnRobot(90.0,200)
+  driveDistance(82.0,300.0)
   wingLeft()
-  driveDistance(37.0,300.0)
-  turnRobot(-82.0,300.0)
-  driveDistance(43.0,300.0)
+  driveDistance(19.0,300.0)
+  turnRobot(-90.0,200.0)
+  driveDistance(-27.0,200.0)
+  alignBackward()
+  driveDistance(50.0,300.0)
+  turnRobot(-90.0,300.0)
   wingRight()
+  driveDistance(10.0,100.0)
+  turnRobot(45.0,200.0)
+  alignForward()
+  driveDistance(58.0,200.0)
 
 
 
@@ -87,4 +94,8 @@ def followLine():
 
 
 # change some code
-final()
+#final()
+driveDistance(12.0,100.0)
+turnRobot(-135.0,200.0)
+alignBackward()
+driveDistance(-58.0,300.0)
