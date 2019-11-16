@@ -79,12 +79,12 @@ def driveDistance(s, v, acc=150.0, tor=100.0):
 
 #-----------------------------------------------------------
 def stopMotors():
-  while (abs(motor_l.speed() >= 1.0) or abs(motor_l.speed() >= 1.0)):
+  while (abs(motor_l.speed() >= 0.5) or abs(motor_l.speed() >= 0.5)):
     robot.stop(Stop.HOLD)
 
 #-----------------------------------------------------------
 # Ausrichten an der Bande
-def alignStart():
+def alignBackward():
   motor_l.set_dc_settings(20.0, 0.0)
   motor_r.set_dc_settings(20.0, 0.0)
   robot.drive(-70.0, 0.0)
@@ -115,26 +115,32 @@ def turnRobot(deg, v):
 
 #------------------------------------------------------------------------#  
 def getColorLeft():
-    # Werte messen
-    l = col_l.reflection()
-    # skalieren auf Bereich [0, 100]
-    l = (l - col_l_range[0]) / (col_l_range[1] - col_l_range[0]) * 100.0
-    # abschneiden auf den Bereich [0, 100]
-    l = min( max(l, 1) , 100)
-    return l
+  # Werte messen
+  l = col_l.reflection()
+  # skalieren auf Bereich [0, 100]
+  l = (l - col_l_range[0]) / (col_l_range[1] - col_l_range[0]) * 100.0
+  # abschneiden auf den Bereich [0, 100]
+  l = min( max(l, 1) , 100)
+  return l
 
 #------------------------------------------------------------------------#
 def getColorRight():
-    # Werte messen
-    r = col_r.reflection()
-    # skalieren auf Bereich [0, 100]
-    r = (r - col_r_range[0]) / (col_r_range[1] - col_r_range[0]) * 100.0
-    # abschneiden auf den Bereich [0, 100]
-    r = min( max(r, 1) , 100)
-    return r
+  # Werte messen
+  r = col_r.reflection()
+  # skalieren auf Bereich [0, 100]
+  r = (r - col_r_range[0]) / (col_r_range[1] - col_r_range[0]) * 100.0
+  # abschneiden auf den Bereich [0, 100]
+  r = min( max(r, 1) , 100)
+  return r
 
 #------------------------------------------------------------------------#
 def getColors():    
-    return (getColorLeft(), getColorRight())
+  return (getColorLeft(), getColorRight())
 
+#------------------------------------------------------------------------#
+def wingLeft():
+  function_l.run_time(-270,1000,Stop.HOLD,True)
+#------------------------------------------------------------------------#   
+def wingRight():
+  function_r.run_time(-270,1000,Stop.HOLD,True)
 #------------------------------------------------------------------------#

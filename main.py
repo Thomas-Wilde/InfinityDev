@@ -3,10 +3,38 @@ from robot_functions import *
 
 #-------------------
 # Aufgabe 12 - Entwerfen und Bauen
-def Task12():
-  alignStart()
+def task12():
+  alignBackward()
   driveDistance(53.0, 300.0, 250.0, 200.0)
   driveDistance(53.0, -400.0, 400.0)
+
+#------------------------------------------------------------------------#
+# Aufgabe 2 - Kran
+def task2():
+  alignBackward()
+  driveDistance(5.0, 300.0)
+  turnRobot(80.0, 300.0)
+  driveDistance(17.0, 300.0)
+  turnRobot(-80.0, 300.0)
+  alignBackward()
+  driveDistance(59.0,420.0)
+  driveDistance(59.0,-550.0)
+  turnRobot(70.0, 400.0)
+  driveDistance(-10.0,500.0)
+#------------------------------------------------------------------------#
+
+def final():
+  alignBackward()
+  driveDistance(20.0,300.0)
+  turnRobot(82.0,300.0)
+  driveDistance(78.0,400.0)
+  wingLeft()
+  driveDistance(37.0,300.0)
+  turnRobot(-82.0,300.0)
+  driveDistance(43.0,300.0)
+  wingRight()
+
+
 
 #------------------------------------------------------------------------#
 def followLine():
@@ -56,6 +84,7 @@ def followLine():
     previous_error = error
 
 #driveDistance(200, 70)
-followLine()
+
 
 # change some code
+final()
