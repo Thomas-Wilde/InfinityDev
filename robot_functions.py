@@ -18,9 +18,9 @@ motor_l = Motor(Port.B, Direction.COUNTERCLOCKWISE)
 motor_r = Motor(Port.C, Direction.COUNTERCLOCKWISE)
 robot   = DriveBase(motor_l, motor_r, 94.2, 130.0)
 col_l = ColorSensor(Port.S2)
-col_l_range = [4, 34]
+col_l_range = [8, 90]
 col_r = ColorSensor(Port.S3)
-col_r_range = [2, 33]
+col_r_range = [6, 67]
 x = 0
 ACC = 50.0
 MAX = 10000000.0
@@ -44,6 +44,12 @@ def cm_to_deg(dist):
   deg = dist / s_per_deg
   return deg
 
+#----------------------------------------------------------------------------#
+def deg_to_cm(deg):
+  s_per_deg = WHEEL_CIRCUM / 360.0
+  dist = deg * s_per_deg
+  return dist
+
 #-----------------------------------------------------------
 # acc = Beschleunigung in degree/sec
 # tor = Drehmoment in % vom maximalen Drehmoment
@@ -64,7 +70,7 @@ def resetMotors(acc=400.0, tor=150.0, vmax=400.0):
 # v - Geschwindigkeit in mm/sec
 # acc - Beschleunigung in degree/(sec*sec)
 # tor - Drehmoment in % vom maximimalen
-def driveDistance(s, v, acc=150.0, tor=100.0):
+def driveDistance(s, v, acc=150.0, tor=100.0, stop=True):
   resetMotors(acc, tor)  
   #--- zum rückwärts Fahren brauchen wir negativen speed
   if (s < 0.0):   
@@ -75,10 +81,11 @@ def driveDistance(s, v, acc=150.0, tor=100.0):
   run = True
   robot.drive(v, 0.0)
   while run:    
-    print((motor_l.angle(), motor_r.angle(), motor_l.angle() - motor_r.angle() ))
+    # print((motor_l.angle(), motor_r.angle(), motor_l.angle() - motor_r.angle() ))
     if (abs(motor_l.angle()) >= deg):
       run = False
-  stopMotors()
+  if stop == True:
+    stopMotors()
 
 #-----------------------------------------------------------
 def stopMotors():
@@ -111,7 +118,6 @@ def alignForward():
       run = False
   stopMotors()
 
-
 #-----------------------------------------------------------
 # Roboter drehen in Grad
 # deg - Drehgrad (<0.0 für Gegenuhrzeigersinn)
@@ -127,7 +133,7 @@ def turnRobot(deg, v):
   motor_r.run(-v)
   run = True
   while run:
-    print((motor_l.angle(), motor_r.angle()))
+    #print((motor_l.angle(), motor_r.angle()))
     if (abs(motor_l.angle()) >= turn):
       run = False
   stopMotors()
@@ -159,7 +165,85 @@ def getColors():
 #------------------------------------------------------------------------#
 def wingLeft():
   function_l.run_time(-270,1000,Stop.HOLD,True)
+
 #------------------------------------------------------------------------#   
 def wingRight():
   function_r.run_time(-270,1000,Stop.HOLD,True)
+
 #------------------------------------------------------------------------#
+def searchWhiteLeft(v=100):
+  resetMotors()
+  robot.drive(v, 0.0)
+  run = True
+  while run:    
+    if (abs(getColorLeft()) >= 80):
+      run = False
+  stopMotors()
+
+#------------------------------------------------------------------------#
+def searchWhiteRight(v=100):
+  resetMotors()
+  robot.drive(v, 0.0)
+  run = True
+  while run:    
+    if (abs(getColorRight()) >= 80):
+      run = False
+  stopMotors()
+#------------------------------------------------------------------------#
+def searchBlackLeft(v=100):
+  resetMotors()
+  robot.drive(v, 0.0)
+  run = True
+  while run:    
+    if (abs(getColorLeft()) <= 5):
+      run = False
+  stopMotors()
+
+#------------------------------------------------------------------------#
+def searchBlackRight(v=100):
+  resetMotors()
+  robot.drive(v, 0.0)
+  run = True
+  while run:    
+    if (abs(getColorRight()) <= 5):
+      run = False
+  stopMotors()
+
+#------------------------------------------------------------------------#
+def searchLine(v=100.0, sensor = "left", color = "black"):
+  resetMotors()
+  robot.drive(v, 0.0)
+  run = True
+  while run:
+    val = getColorLeft() if sensor == "left" else getColorRight()  
+    if (color == "black"):
+      if (abs(val) <= 5):
+        run = False
+    if (color == "white"):
+      if (abs(val) >= 80):
+        run = False    
+  stopMotors()
+  angle = (motor_l.angle() + motor_r.angle()) / 2.0
+  print("anngle")
+  print(angle)
+  dist = deg_to_cm(angle)
+  return dist
+
+#------------------------------------------------------------------------#
+def numberToColor(num):
+  if num == Color.BLACK:
+    return "Black"
+  if num == Color.BLUE:
+    return "Blue"
+  if num == Color.GREEN:
+    return "Green"
+  if num == Color.YELLOW:
+    return "Yellow"
+  if num == Color.RED:
+    return "Red"    
+  if num == Color.WHITE:
+    return "White"    
+  if num == Color.BROWN:
+    return "Brown"
+  if num == None:
+    return "None"
