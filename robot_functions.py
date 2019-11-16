@@ -49,12 +49,14 @@ def cm_to_deg(dist):
 # tor = Drehmoment in % vom maximalen Drehmoment
 # vmax = maximale Geschwindigkeit
 def resetMotors(acc=400.0, tor=150.0, vmax=400.0):
+  print("reset motors")
   motor_l.reset_angle(0.0)
   motor_r.reset_angle(0.0)
   motor_l.set_dc_settings(tor, 0.0)
   motor_r.set_dc_settings(tor, 0.0)
   motor_l.set_run_settings(vmax, acc)
   motor_r.set_run_settings(vmax, acc)
+  print(("angles: ", motor_l.angle(), motor_r.angle()))
 
 #-----------------------------------------------------------
 # Fahre Weg in cm, mit gegebener Geschwindigkeit
@@ -65,7 +67,8 @@ def resetMotors(acc=400.0, tor=150.0, vmax=400.0):
 def driveDistance(s, v, acc=150.0, tor=100.0):
   resetMotors(acc, tor)  
   #--- zum rückwärts Fahren brauchen wir negativen speed
-  if (s < 0.0):         
+  if (s < 0.0):   
+    s = s * -1.0      
     v = v * -1.0
   #--- Weg in Umdrehungen (Grad) umrechnen
   deg = cm_to_deg(s)
@@ -79,8 +82,10 @@ def driveDistance(s, v, acc=150.0, tor=100.0):
 
 #-----------------------------------------------------------
 def stopMotors():
-  while (abs(motor_l.speed() >= 0.5) or abs(motor_l.speed() >= 0.5)):
+  print("stop motors")
+  while ((abs(motor_l.speed()) >= 1.0 or abs(motor_l.speed()) >= 1.0)):
     robot.stop(Stop.HOLD)
+  print(("motor speed: ", motor_l.speed(), motor_r.speed()))
 
 #-----------------------------------------------------------
 # Ausrichten an der Bande
@@ -93,6 +98,19 @@ def alignBackward():
     if (motor_l.stalled() and motor_r.stalled()):
       run = False
   stopMotors()
+
+#-----------------------------------------------------------
+# Ausrichten an der Bande
+def alignForward():
+  motor_l.set_dc_settings(20.0, 0.0)
+  motor_r.set_dc_settings(20.0, 0.0)
+  robot.drive(70.0, 0.0)
+  run = True
+  while run:
+    if (motor_l.stalled() and motor_r.stalled()):
+      run = False
+  stopMotors()
+
 
 #-----------------------------------------------------------
 # Roboter drehen in Grad
@@ -109,6 +127,7 @@ def turnRobot(deg, v):
   motor_r.run(-v)
   run = True
   while run:
+    print((motor_l.angle(), motor_r.angle()))
     if (abs(motor_l.angle()) >= turn):
       run = False
   stopMotors()
