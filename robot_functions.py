@@ -70,7 +70,7 @@ def resetMotors(acc=400.0, tor=150.0, vmax=400.0):
 # v - Geschwindigkeit in mm/sec
 # acc - Beschleunigung in degree/(sec*sec)
 # tor - Drehmoment in % vom maximimalen
-def driveDistance(s, v, acc=150.0, tor=100.0, stop=True):
+def driveDistance(s, v, steer=0.0, acc=150.0, tor=100.0, stop=True):
   resetMotors(acc, tor)  
   #--- zum rückwärts Fahren brauchen wir negativen speed
   if (s < 0.0):   
@@ -79,10 +79,10 @@ def driveDistance(s, v, acc=150.0, tor=100.0, stop=True):
   #--- Weg in Umdrehungen (Grad) umrechnen
   deg = cm_to_deg(s)
   run = True
-  robot.drive(v, 0.0)
+  robot.drive(v, steer)
   while run:    
     # print((motor_l.angle(), motor_r.angle(), motor_l.angle() - motor_r.angle() ))
-    if (abs(motor_l.angle()) >= deg):
+    if (abs(motor_l.angle()) >= deg or abs(motor_r.angle()) >= deg ):
       run = False
   if stop == True:
     stopMotors()
@@ -108,7 +108,7 @@ def alignBackward():
 
 #-----------------------------------------------------------
 # Ausrichten an der Bande
-def alignForward():
+def alignForward(v=70.0, tor=20.0):
   motor_l.set_dc_settings(20.0, 0.0)
   motor_r.set_dc_settings(20.0, 0.0)
   robot.drive(70.0, 0.0)
@@ -131,7 +131,7 @@ def turnRobot(deg, v):
   #---
   motor_l.run(v)
   motor_r.run(-v)
-  run = True
+  run  = True
   while run:
     #print((motor_l.angle(), motor_r.angle()))
     if (abs(motor_l.angle()) >= turn):
@@ -171,48 +171,9 @@ def wingRight():
   function_r.run_time(-270,1000,Stop.HOLD,True)
 
 #------------------------------------------------------------------------#
-def searchWhiteLeft(v=100):
+def searchLine(v=100.0, sensor = "left", color = "black", steer = 0, stop=True):
   resetMotors()
-  robot.drive(v, 0.0)
-  run = True
-  while run:    
-    if (abs(getColorLeft()) >= 80):
-      run = False
-  stopMotors()
-
-#------------------------------------------------------------------------#
-def searchWhiteRight(v=100):
-  resetMotors()
-  robot.drive(v, 0.0)
-  run = True
-  while run:    
-    if (abs(getColorRight()) >= 80):
-      run = False
-  stopMotors()
-#------------------------------------------------------------------------#
-def searchBlackLeft(v=100):
-  resetMotors()
-  robot.drive(v, 0.0)
-  run = True
-  while run:    
-    if (abs(getColorLeft()) <= 5):
-      run = False
-  stopMotors()
-
-#------------------------------------------------------------------------#
-def searchBlackRight(v=100):
-  resetMotors()
-  robot.drive(v, 0.0)
-  run = True
-  while run:    
-    if (abs(getColorRight()) <= 5):
-      run = False
-  stopMotors()
-
-#------------------------------------------------------------------------#
-def searchLine(v=100.0, sensor = "left", color = "black"):
-  resetMotors()
-  robot.drive(v, 0.0)
+  robot.drive(v, steer)
   run = True
   while run:
     val = getColorLeft() if sensor == "left" else getColorRight()  
@@ -222,10 +183,9 @@ def searchLine(v=100.0, sensor = "left", color = "black"):
     if (color == "white"):
       if (abs(val) >= 80):
         run = False    
-  stopMotors()
+  if (stop):
+    stopMotors()
   angle = (motor_l.angle() + motor_r.angle()) / 2.0
-  print("anngle")
-  print(angle)
   dist = deg_to_cm(angle)
   return dist
 

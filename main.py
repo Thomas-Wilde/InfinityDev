@@ -96,25 +96,46 @@ def followLine(s, v=150.0, acc=150.0, tor=100.0, stop=True):
   if stop == True:
     stopMotors()
 
-#----------------------------
-# searchWhiteLeft(100.0)     
-way = 20.0
-driveDistance(20.0, 300.0)
-way += searchLine(100.0, "left", "black")
-brick.sound.beep()
-way += searchLine(100.0, "right", "white")
-#ueber den Satz des Pythagoras errechnen wir, wie weit wir noch fahren muessen
-dist = math.sqrt(way*way - 23.0*23.0)
-brick.sound.beep()
-turnRobot(8.75, 200.0)
-# followLine(35.0)
-print("to Go ***********************")
-print(50.0 - dist)
-driveDistance(60.0 - dist, 300.0, 400.0)
-brick.sound.beep()
-turnRobot(-95.0, 300.0)
-driveDistance(-10.0, 200.0, 300.0)
-driveDistance(25.0, 200.0, MAX)
+
+def Mission6():
+  #----------------------------
+  # searchWhiteLeft(100.0)     
+  way = 47.0
+  s1  = 20.0
+  s2  = 113.0
+  driveDistance(s1, 300.0)
+  way += s1
+  #way += searchLine(100.0, "left", "black") 
+  way += searchLine(100.0, "right", "white") 
+  way += searchLine(100.0, "right", "black") 
+  brick.sound.beep()
+  turnRobot(15.0, 200.0)
+  #ueber den Satz des Pythagoras errechnen wir, wie weit wir noch fahren muessen
+  dist = math.sqrt(way*way - 23.0*23.0)
+  print("to Go ***********************")
+  print(s2 - dist)  
+  driveDistance(s2 - dist, 300.0, 0.0, 400.0)
+  driveDistance(-17.0, 300.0, -270.0, 500.0)
+  driveDistance(-7.5, 200.0, 0.0, 300.0)
+  alignBackward()
+  searchLine(100.0, "right", "white", stop=False) 
+  searchLine(100.0, "right", "black", stop=False) 
+  searchLine(100.0, "right", "white") 
+  turnRobot(93.0, 200.0)
+  #-----------------------------------------
+  #--- Werkzeug abklappen
+  function_l.set_dc_settings(200.0, 0.0)
+  function_l.reset_angle(0.0)
+  while (abs(function_l.angle()) < 90.0):
+    function_l.run_until_stalled(MAX)
+  driveDistance(44.0, 300.0, 0.0, 400.0)
+  alignForward(70.0, 50.0)
+  driveDistance(-44.0, 300.0, 0.0, 400.0)
+
+Mission6()
+
+
+#driveDistance(25.0, 200.0, MAX)
 
 #driveDistance(200, 70)
 # change some code
