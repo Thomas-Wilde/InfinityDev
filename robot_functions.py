@@ -96,10 +96,11 @@ def stopMotors():
 
 #-----------------------------------------------------------
 # Ausrichten an der Bande
-def alignBackward():
-  motor_l.set_dc_settings(20.0, 0.0)
-  motor_r.set_dc_settings(20.0, 0.0)
-  robot.drive(-70.0, 0.0)
+# v = Geschwindigkeit, positiv = vorwärts
+def alignBorder(v, tor=20.0):
+  motor_l.set_dc_settings(tor, 0.0)
+  motor_r.set_dc_settings(tor, 0.0)
+  robot.drive(v, 0.0)
   run = True
   while run:
     if (motor_l.stalled() and motor_r.stalled()):
@@ -107,16 +108,11 @@ def alignBackward():
   stopMotors()
 
 #-----------------------------------------------------------
-# Ausrichten an der Bande
 def alignForward(v=70.0, tor=20.0):
-  motor_l.set_dc_settings(20.0, 0.0)
-  motor_r.set_dc_settings(20.0, 0.0)
-  robot.drive(70.0, 0.0)
-  run = True
-  while run:
-    if (motor_l.stalled() and motor_r.stalled()):
-      run = False
-  stopMotors()
+  alignBorder(abs(v), tor)
+
+def alignBackward(v=70.0, tor=20.0):
+  alignBorder(-abs(v), tor)
 
 #-----------------------------------------------------------
 # Roboter drehen in Grad
