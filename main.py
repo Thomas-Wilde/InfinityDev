@@ -96,19 +96,17 @@ def followLine(s, v=150.0, acc=150.0, tor=100.0, stop=True):
   if stop == True:
     stopMotors()
 
-
-def Mission6():
+# Mission: Stau; danach Schaukel
+def Task6():
   #----------------------------
-  # searchWhiteLeft(100.0)     
+  #Stau
   way = 47.0
   s1  = 20.0
   s2  = 113.0
   driveDistance(s1, 300.0)
   way += s1
-  #way += searchLine(100.0, "left", "black") 
   way += searchLine(100.0, "right", "white") 
   way += searchLine(100.0, "right", "black") 
-  brick.sound.beep()
   turnRobot(15.0, 200.0)
   #ueber den Satz des Pythagoras errechnen wir, wie weit wir noch fahren muessen
   dist = math.sqrt(way*way - 23.0*23.0)
@@ -118,21 +116,48 @@ def Mission6():
   driveDistance(-17.0, 300.0, -270.0, 500.0)
   driveDistance(-7.5, 200.0, 0.0, 300.0)
   alignBackward()
+  brick.sound.beep()
   searchLine(100.0, "right", "white", stop=False) 
   searchLine(100.0, "right", "black", stop=False) 
   searchLine(100.0, "right", "white") 
-  turnRobot(93.0, 200.0)
   #-----------------------------------------
+  #Ab hier Mission:Schaukel
+  turnRobot(90.0, 200.0)
+  driveDistance(30.0 ,300.0, acc=400.0)
+  turnRobot(-90.0, 200.0)
+  alignBackward(200.0)
+  driveDistance(5.0, 100.0)
   #--- Werkzeug abklappen
   function_l.set_dc_settings(200.0, 0.0)
   function_l.reset_angle(0.0)
   while (abs(function_l.angle()) < 90.0):
-    function_l.run_until_stalled(MAX)
-  driveDistance(44.0, 300.0, 0.0, 400.0)
-  alignForward(70.0, 50.0)
-  driveDistance(-44.0, 300.0, 0.0, 400.0)
+    function_l.run_until_stalled(400.0)
+  turnRobot(90.0 , 200.0)
+  driveDistance(20.0, 300.0)
+  # Ab hier Mission: Fahrstuhl
+  driveDistance(-15.0, 250.0, 0.0, 400.0)
+  turnRobot(-90.0, 200.0)
+  alignBackward(200.0)
+  driveDistance(26.0, 200.0, acc=300.0)
+  s = searchLine(100.0, "right", "black")
+  driveDistance(-2.0, 100.0)
+  s -= 2.0
+  b = 40.0*(20.0-s)/20.0
+  a = 20.0 - s
+  c = math.sqrt(a*a + b*b)
+  print(s)
+  function_l.set_dc_settings(50.0, 0.0)
+  function_l.run_until_stalled(-400.0)
+  turnRobot(53.0, 100.0)
+  c += 10.0
+  driveDistance(c, 200.0)
+  function_l.set_dc_settings(200.0, 0.0)
+  function_l.run_until_stalled(400.0)
+  driveDistance(-48.0, 500.0, acc = 400.0)
+  turnRobot(37.0, 300.0)
+  driveDistance(-140.0, 500.0, acc = 400.0)
 
-Mission6()
+Task6()
 
 
 #driveDistance(25.0, 200.0, MAX)
