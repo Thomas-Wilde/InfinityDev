@@ -25,21 +25,25 @@ def task2():
 
 def final():
   alignBackward()
-  driveDistance(18,200)
+  driveDistance(20.0,200)
   turnRobot(90.0,200)
-  driveDistance(82.0,300.0)
+  driveDistance(-48.0, 300.0)
+  alignBackward()
+  driveDistance(129.0,300.0)
   wingLeft()
   driveDistance(19.0,300.0)
   turnRobot(-90.0,200.0)
   driveDistance(-27.0,200.0)
   alignBackward()
-  driveDistance(50.0,300.0)
-  turnRobot(-90.0,300.0)
+  driveDistance(54.0,300.0)
+  turnRobot(-65.0,300.0)
   wingRight()
-  driveDistance(10.0,100.0)
-  turnRobot(45.0,200.0)
-  alignForward()
-  driveDistance(58.0,200.0)
+  driveDistance(15.0,100.0)
+  turnRobot(42.5,200.0)
+  driveDistance(-15.0, 200.0)
+  turnRobot(180.0, 150.0)
+  driveDistance(-13.0, 150.0)
+  driveDistance(-58.0, 300.0, tor = 3001)
 
 
 
@@ -158,7 +162,7 @@ def Task6():
   driveDistance(-140.0, 500.0, acc = 400.0)
 
 Task6()
-
+# final()
 
 #driveDistance(25.0, 200.0, MAX)
 

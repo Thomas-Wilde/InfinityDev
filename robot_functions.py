@@ -160,13 +160,13 @@ def getColors():
 
 #------------------------------------------------------------------------#
 def wingLeft():
-  function_l.run_time(-270,1000,Stop.HOLD,True)
+  function_l.run_angle(135,-270,Stop.HOLD,True)
 
 #------------------------------------------------------------------------#   
 def wingRight():
-  function_r.run_time(-270,1000,Stop.HOLD,True)
+  function_r.run_angle(135,-270,Stop.HOLD,False)
 
-#------------------------------------------------------------------------#
+#--------------------------------1----------------------------------------#
 def searchLine(v=100.0, sensor = "left", color = "black", steer = 0, stop=True):
   resetMotors()
   robot.drive(v, steer)
