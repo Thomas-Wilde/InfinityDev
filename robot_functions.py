@@ -167,20 +167,36 @@ def wingRight():
   function_r.run_angle(135,-270,Stop.HOLD,False)
 
 #--------------------------------1----------------------------------------#
-def searchLine(v=100.0, sensor = "left", color = "black", steer = 0, stop=True):
+# Der Roboter faehrt solange gerade aus, bis er eine Linie findet.
+# v        - Geschwindigkeit
+# sensor   - linker oder rechter Sensor sucht die Linie ("left" oder "right")
+# color    - die Farbe der Linie, die gesucht werden soll ("black" oder "white")
+# steer    - wenn != 0 dann faehrt der Roboter eine Kurve
+# stop     - falls "True" dann bremst der Roboter ansonsten rollt er aus
+# straight - wenn "True" dann faehrt der Roboter geradeaus, ansonsten dreht er sich
+def searchLine(v=100.0, sensor = "left", color = "black", steer = 0, stop=True, straight = True):
   resetMotors()
-  robot.drive(v, steer)
+  #--- starte beide oder byr einen Motor
+  if (straight):
+    robot.drive(v, steer)
+  else
+    if (sensor == "left"):
+      motor_l.run(v)
+    else
+      motor_r.run(v)
+  #--- suche die Linie  
   run = True
   while run:
     val = getColorLeft() if sensor == "left" else getColorRight()  
     if (color == "black"):
       if (abs(val) <= 5):
-        run = False
+        run = False 
     if (color == "white"):
       if (abs(val) >= 80):
         run = False    
   if (stop):
     stopMotors()
+  #--- rechne die gefahrene Distanz aus
   angle = (motor_l.angle() + motor_r.angle()) / 2.0
   dist = deg_to_cm(angle)
   return dist
