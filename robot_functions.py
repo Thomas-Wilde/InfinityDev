@@ -10,51 +10,46 @@ from pybricks.robotics import DriveBase
 import time
 import math
 
-#-----------------------------------------------------------
+#------------------------------------------------------------------------#
+
 # wir definieren globale Variablen um auf Motoren und Sensoren zuzugreifen
-function_l = Motor(Port.A, Direction.COUNTERCLOCKWISE)
-function_r = Motor(Port.D, Direction.COUNTERCLOCKWISE)
-motor_l = Motor(Port.B, Direction.COUNTERCLOCKWISE)
-motor_r = Motor(Port.C, Direction.COUNTERCLOCKWISE)
-robot   = DriveBase(motor_l, motor_r, 94.2, 130.0)
-col_l = ColorSensor(Port.S2)
-col_l_range = [8, 90]
-col_r = ColorSensor(Port.S3)
-col_r_range = [6, 67]
-x = 0
-ACC = 50.0
-MAX = 10000000.0
-WHEEL_DIAMETER = 9.42  # Raddurchmesser in cm
-WHEEL_CIRCUM   = WHEEL_DIAMETER * math.pi
-WHEEL_DISTANCE = 12.4
-TURN_CIRCUM    = WHEEL_DISTANCE * math.pi
 
-#-----------------------------------------------------------
-# #Distanz s in cm
-# def drive_t(s,t,stop = Stop.COAST):
-#   s = s * 10.0
-#   v = s / t
-#   t = t * 1000.0
-#   robot.drive_time(v, 0.0, t)
-#   robot.stop(stop)
+function_l = Motor(Port.A, Direction.COUNTERCLOCKWISE)    # linker  Modul Motor
+function_r = Motor(Port.D, Direction.COUNTERCLOCKWISE)    # rechter Modul Motor
+motor_r = Motor(Port.C, Direction.COUNTERCLOCKWISE)       # rechter Rad Motor
+motor_l = Motor(Port.B, Direction.COUNTERCLOCKWISE)       # linker  Rad Motor
+robot   = DriveBase(motor_l, motor_r, 94.2, 130.0)        # Fahrgrundlage mit beiden Rad Motoren, Raddurchmesser und Abstand zwischen den Mittelpunkten zweier Räder
+col_l = ColorSensor(Port.S2)                              # linker  Farbsensor
+col_l_range = [8, 90]                                     # Spektrum in dem der linke Farbsensor, die Reflektion ausgibt(8 - schwarz; 90 - weiß) in Prozent
+col_r = ColorSensor(Port.S3)                              # rechter Farbsensor
+col_r_range = [6, 67]                                     # Spektrum in dem der rechte Farbsensor, die Reflektion ausgibt(6 - schwarz; 67 - weiß) in Prozent
+MAX = 10000000.0                                          # Sehr hoher Wert sollten wir die maximale Leistung wollen
+WHEEL_DIAMETER = 9.42                                     # Raddurchmesser in cm
+WHEEL_CIRCUM   = WHEEL_DIAMETER * math.pi                 # Radumfang in cm
+WHEEL_DISTANCE = 12.4                                     # Radstand in cm
+TURN_CIRCUM    = WHEEL_DISTANCE * math.pi                 # Umfang des Wedekreis
 
-#----------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+
 def cm_to_deg(dist):
   s_per_deg = WHEEL_CIRCUM / 360.0
   deg = dist / s_per_deg
   return deg
 
-#----------------------------------------------------------------------------#
+#------------------------------------------------------------------------#
+
 def deg_to_cm(deg):
   s_per_deg = WHEEL_CIRCUM / 360.0
   dist = deg * s_per_deg
   return dist
 
-#-----------------------------------------------------------
-# acc = Beschleunigung in degree/sec
-# tor = Drehmoment in % vom maximalen Drehmoment
-# vmax = maximale Geschwindigkeit
-def resetMotors(acc=400.0, tor=150.0, vmax=400.0):
+#------------------------------------------------------------------------#
+
+# acc - Beschleunigung in Grad/Sekunde
+# tor - relative Begrenzung des maximal möglichen Drehmoments in Prozent
+# vmax - maximale Geschwindigkeit
+
+def resetMotors(acc=400.0, tor=150.0, vmax=400.0):    # Setzt gemessene Motorwerte 
   print("reset motors")
   motor_l.reset_angle(0.0)
   motor_r.reset_angle(0.0)
@@ -65,6 +60,7 @@ def resetMotors(acc=400.0, tor=150.0, vmax=400.0):
   print(("angles: ", motor_l.angle(), motor_r.angle()))
 
 #-----------------------------------------------------------
+
 # Fahre Weg in cm, mit gegebener Geschwindigkeit
 # s - Weg in cm (negativ für rückwärts fahren)
 # v - Geschwindigkeit in mm/sec
