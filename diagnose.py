@@ -1,8 +1,15 @@
 #!/usr/bin/env pybricks-micropython
-from robot_functions import *
+from pybricks import ev3brick as brick
+from pybricks.ev3devices import (Motor, TouchSensor, ColorSensor,
+                                 InfraredSensor, UltrasonicSensor, GyroSensor)
+from pybricks.parameters import (Port, Stop, Direction, Button, Color,
+                                 SoundFile, ImageFile, Align)
+from pybricks.tools import print, wait, StopWatch
+from pybricks.robotics import DriveBase
 
-def diagnose():
-  bool success = True
+def runDiagnose():
+  brick.display.clear()  
+  success = True
   #---
   try:
       motor_r = Motor(Port.C)
@@ -44,10 +51,14 @@ def diagnose():
   # #battery
   # if brick.battery.voltage() < 7000:
   #     brick.display.text("battery",(30,80))
-  if success:
+  if success == False:
     brick.light(Color.ORANGE)
-    for i in range(4)
-      brick.sound.beep()
+    for i in range(2):
+      brick.sound.beep(500, 50, 25)
+      brick.sound.beep(500, 50, 0)
+      brick.sound.beep(750, 50, 25)
+      brick.sound.beep(500, 50, 0)
   else:
     brick.light(Color.GREEN)
+
   return success

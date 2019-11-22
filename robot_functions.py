@@ -175,10 +175,10 @@ def searchLine(v=100.0, sensor = "left", color = "black", steer = 0, stop=True, 
   #--- starte beide oder byr einen Motor
   if (straight):
     robot.drive(v, steer)
-  else
+  else:
     if (sensor == "left"):
       motor_l.run(v)
-    else
+    else:
       motor_r.run(v)
   #--- suche die Linie  
   run = True
