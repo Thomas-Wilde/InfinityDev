@@ -70,16 +70,25 @@ def Run01_StauSchaukel():
 #---------------------------------------------------------#
 # Aufgabe 2 - Kran
 def Run02_Kran():
+  # resetMotors()
+  # alignBackward(v = 200.0)
+  # driveDistance(10.0,200.0)
+  # turnRobot(90.0,150.0)
+  # driveDistance(16, 100.0)
+  # turnRobot(-90.0, 150.0)
+  # driveDistance(-10.0,200.0)
+  # alignBackward(v = 200.0)
+  motor_r.set_dc_settings(100.0, 0.0)
+  motor_r.run_until_stalled(-70.0)
+  motor_r.set_dc_settings(100.0, 0.0)
   resetMotors()
   alignBackward()
-  driveDistance(10.0,200.0)
-  turnRobot(90.0,150.0)
-  driveDistance(16, 100.0)
-  turnRobot(-90.0, 150.0)
-  driveDistance(-10.0,200.0)
-  alignBackward()
-  driveDistance(66.0,300.0)
-
+  driveDistance(69.0, 250.0)
+  wait(1000)
+  driveDistance(-30.0, 500.0)
+  turnRobot(60.0, 400.0)
+  driveDistance(-60.0, 500.0)
+  turnRobot(-90.0, 500.0)
 #---------------------------------------------------------#
 def Run03_Haus():
   alignBackward()
@@ -104,12 +113,7 @@ def Run04_Bruecke():
   searchLine(-200.0, "right", "white")
   turnRobot(-26.8, 150.0)
   driveDistance(-60.0, 400.0)
-  robot.drive_time(-800.0, -90.0, 4000.0)
-  motor_l.set_dc_settings(5.0, 0.0)
-  motor_r.set_dc_settings(5.0, 0.0)
-  while True:
-    motor_l.run(-100)
-    motor_r.run(-100)
+  wait(20000)
 
 #---------------------------------------------------------#
 def Run05_Stau():

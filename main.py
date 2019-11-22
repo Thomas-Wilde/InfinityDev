@@ -5,7 +5,17 @@ check = False
 while check == False:
   check = runDiagnose()
 
+#---------------------------------------------#
 from missions        import *
+
+# Programm zur Auswahl der Missionen 
+selection = 0
+missions  = [ "1 Stau, Schaukel", 
+              "2 Kran", 
+              "3 Haeuser", 
+              "4 Bruecke",
+              "5 Stau" ]
+
 #---------------------------------------------#
 def listMissions(index):
   brick.display.clear()
@@ -30,16 +40,8 @@ def runMission(index):
     Run05_Stau()
 
 #---------------------------------------------#
-# Programm zur Auswahl der Missionen 
-selection = 0
-missions  = [ "1 Stau, Schaukel", 
-              "2 Kran", 
-              "3 Haeuser", 
-              "4 Bruecke",
-              "5 Stau" ]
-
-#---------------------------------------------#
 def handleButton(index):
+  #--- wenn mehrere knöpfe gedrückt werden, passiert nichts
   if (len(brick.buttons()) != 1):
     return
   if (brick.buttons()[0] == Button.DOWN):
@@ -54,7 +56,7 @@ def handleButton(index):
 while True:
   #--- Missionen auflisten
   listMissions(selection)
-  #---
+  #--- solange kein knopf gedrückdt wird gewartet
   while not any(brick.buttons()):
     wait(10)
   #--- ein Knopf wurde gedrueckt
