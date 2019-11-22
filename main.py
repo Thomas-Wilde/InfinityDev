@@ -69,41 +69,56 @@ while True:
 # Aufgabe 12 - Entwerfen und Bauen
 def Task12():
   alignBackward()
-  driveDistance(10.0, 200.0)
-  turnRobot(90.0, 150.0)
-  driveDistance(17.5, 150.0)
-  turnRobot(-90.0, 150.0)
-  driveDistance(-10.0, 200.0)
-  alignBackward()
-  driveDistance(60.0, 300.0)
-
+  driveDistance(50.0, 250.0, steer = - 4.5)
+  driveDistance(-22.0, 500.0)
+  turnRobot(60.0, 300.0)
+  driveDistance(-40.0, 500.0, stop = True)
+  turnRobot(-90.0, 500.0)
 #------------------------------------------------------------------------#
 # Aufgabe 2 - Kran
 def Task2():
+  # alignBackward()
+  # driveDistance(5.0, 300.0)
+  # turnRobot(90.0, 300.0)
+  # driveDistance(17.0, 300.0)
+  # turnRobot(-90.0, 300.0)
+  # alignBackward()
+  # driveDistance(59.0,420.0)
+  # driveDistance(59.0,-550.0)
+  # turnRobot(90.0, 400.0)
+  # driveDistance(-10.0,500.0)
+  resetMotors()
   alignBackward()
-  driveDistance(5.0, 300.0)
-  turnRobot(90.0, 300.0)
-  driveDistance(17.0, 300.0)
-  turnRobot(-90.0, 300.0)
+  driveDistance(10.0,200.0)
+  turnRobot(90.0,150.0)
+  driveDistance(16, 100.0)
+  turnRobot(-90.0, 150.0)
+  driveDistance(-10.0,200.0)
   alignBackward()
-  driveDistance(59.0,420.0)
-  driveDistance(59.0,-550.0)
-  turnRobot(90.0, 400.0)
-  driveDistance(-10.0,500.0)
+  driveDistance(66.0,300.0)
 #------------------------------------------------------------------------#
 
 def final():
-  # alignBackward()
-  # driveDistance(20.0,200)
-  # turnRobot(90.0,200)
-  # driveDistance(-48.0, 300.0)
-  # alignBackward()
-  # driveDistance(129.0,300.0)
-  # wingLeft()
-  # driveDistance(19.0,300.0)
-  # turnRobot(-90.0,200.0)
-  # driveDistance(-27.0,200.0)
-  # alignBackward()
+  alignBackward()
+  driveDistance(15.0,200)
+  turnRobot(90.0, 200)
+  driveDistance(82.0, 300.0)
+  wingLeft()
+  driveDistance(27.0,300.0)
+  turnRobot(80.0,200.0)
+  driveDistance(26.0,300.0)
+  alignForward()
+  driveDistance(-27.0, 200.0)
+  searchLine(-200.0, "right", "white")
+  turnRobot(-26.8, 150.0)
+  driveDistance(-60.0, 400.0)
+  robot.drive_time(-800.0, -90.0, 4000.0)
+  motor_l.set_dc_settings(5.0, 0.0)
+  motor_r.set_dc_settings(5.0, 0.0)
+  while True:
+    motor_l.run(-100)
+    motor_r.run(-100)
+
   # driveDistance(54.0,300.0)
   # turnRobot(-65.0,300.0)
   # wingRight()
@@ -113,23 +128,24 @@ def final():
   # turnRobot(180.0, 150.0)
   # driveDistance(-13.0, 150.0)
   # driveDistance(-58.0, 300.0, tor = 3001)
-  driveDistance(85.0, 300.0)
-  searchLine(100.0, "left", "black")
-  motor_r.run(100.0)
-  run = True
-  while run:
-    val = getColorRight()
-    if (abs(val)<=5):
-      run = False
-  motor_r.stop(Stop.Hold)
-  searchLine(100.0, "right", "white")
-  motor_l.run(100.0)
-  run = True
-  while run:
-    val = getColorLeft()
-    if (abs(val)>=80):
-      run = False
-  motor_l.stop(Stop.Hold)
+  
+  # driveDistance(83.0, 300.0)
+  # searchLine(100.0, "left", "black")
+  # motor_r.run(100.0)
+  # run = True
+  # while run:
+  #   val = getColorRight()
+  #   if (abs(val)<=5):
+  #     run = False
+  # motor_r.stop(Stop.HOLD)
+  # searchLine(100.0, "right", "white")
+  # motor_l.run(100.0)
+  # run = True
+  # while run:
+  #   val = getColorLeft()
+  #   if (abs(val)>=80):
+  #     run = False
+  # motor_l.stop(Stop.HOLD)
 #------------------------------------------------------------------------#
 
 def followLine(s, v=150.0, acc=150.0, tor=100.0, stop=True):
@@ -152,7 +168,7 @@ def followLine(s, v=150.0, acc=150.0, tor=100.0, stop=True):
   Kp = 1.00  # proportional gain
   Ki = 0.00  # integral gain
   Kd = 0.00  # derivative gain
-
+  robot.drive_time(-200.0, 90.0, 2000.0)
   run = True
   while run:
     dt   = (watch.time() - time + 1) / 1000.0
@@ -259,9 +275,18 @@ def Task8():      # Mission: Fahrstuhl
 
 #------------------------------------------------------------------------#
 
+# searchLine(100.0, "left", "black", straight = False)
+# searchLine(100.0, "right", "black", straight = False)
+# searchLine(-100.0, "left", "black", straight = False)
+# searchLine(100.0, "right", "black", straight = False)
+# searchLine(100.0, "left", "white", straight = False)
+# searchLine(100.0, "right", "white", straight = False)
+
+
+Task2()
 # driveDistance(20.0, 300.0)
 #driveDistance(25.0, 200.0, MAX)
-final()
+#final()
 #driveDistance(200, 70)
 # driveDistance(12.0,100.0)
 # turnRobot(-135.0,200.0)
