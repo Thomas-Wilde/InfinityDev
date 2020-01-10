@@ -65,7 +65,8 @@ def resetMotors(acc=400.0, tor=150.0, vmax=400.0):    # Setzt gemessene Motorwer
 # s - Weg in cm (negativ für rückwärts fahren)
 # v - Geschwindigkeit in mm/sec
 # acc - Beschleunigung in degree/(sec*sec)
-# tor - Drehmoment in % vom maximimalen
+# tor - Drehmoment in % vom Maximimalen
+# stop - falls True dann bremmst der Roboter ab
 def driveDistance(s, v, steer=0.0, acc=150.0, tor=100.0, stop=True):
   resetMotors(acc, tor)  
   #--- zum rückwärts Fahren brauchen wir negativen speed
@@ -86,8 +87,9 @@ def driveDistance(s, v, steer=0.0, acc=150.0, tor=100.0, stop=True):
 #-----------------------------------------------------------
 def stopMotors():
   print("stop motors")
-  while ((abs(motor_l.speed()) >= 1.0 or abs(motor_r.speed()) >= 1.0)):
+  while ((abs(motor_l.speed()) >= 10.0 or abs(motor_r.speed()) >= 10.0)):
     robot.stop(Stop.HOLD)
+    print((motor_l.speed(), motor_r.speed()))
   print(("motor speed: ", motor_l.speed(), motor_r.speed()))
 
 #-----------------------------------------------------------
