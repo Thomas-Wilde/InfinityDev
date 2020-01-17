@@ -22,8 +22,35 @@ def Task6():    # Missoin: Stau
   searchLine(100.0, "right", "white", stop=False) 
   searchLine(100.0, "right", "black", stop=False) 
   searchLine(100.0, "right", "white")
-  Task7() 
+  Task7_new() 
 
+#------------------------------------------------------------------------#
+def stop_func(loop_count, pdi, change):
+  dist = deg_to_cm(motor_l.angle())
+  print((loop_count, dist, pdi, change))
+  if (dist > 15.0 and pdi > 1.0 ):
+    return False
+  return True
+
+def Task7_new():
+  searchLine(100.0, "right", "white", stop=False) 
+  searchLine(100.0, "right", "black", stop=False) 
+  searchLine(100.0, "right", "white")
+  driveDistance(1.5, 200.0)
+  turnRobot(90.0, 200.0)
+  followLine(150.0, stop_func)
+  stopMotors()
+  resetMotors()
+  # Werkzeug abklappen
+  function_l.set_dc_settings(200.0, 0.0)
+  function_l.reset_angle(0.0)
+  while (abs(function_l.angle()) < 90.0):
+    function_l.run_until_stalled(800.0)
+  driveDistance(20, 200.0, 15.5, stop=False)
+  resetMotors()
+  driveDistance(20, 200.0, -15.5, stop=False)
+  driveDistance(10, 300.0)
+  Task8()
 #------------------------------------------------------------------------#
 def Task7():     # Mission: Schaukel
   turnRobot(90.0, 200.0)
