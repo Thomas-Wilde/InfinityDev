@@ -199,6 +199,46 @@ def searchLine(v=100.0, sensor = "left", color = "black", steer = 0, stop=True, 
   dist = deg_to_cm(angle)
   return dist
 
+#--------------------------------1----------------------------------------#
+# Der Roboter folgt der Linie mit dem linken oder rechten Lichtsensor.
+# v           - Geschwindigkeit
+# sensor_func - getColorLeft() oder getColorRight()
+# stop_func   - Funktion, welche die Stop Kondition festlegt (False fuer stop)
+# scale       - Skalierungsfaktor der Korrektur MUSS NEGATIV SEIN FALLS getColorLeft()
+def followLine(v, stop_func, sensor = "right"):
+  target = 50.0
+  kp     = 0.88
+  kd     = 0.10
+  ki     = 0.02
+  scale  = 0.25
+
+  sensor_func = getColorRight   
+  speed      = v
+  error      = 0.0
+  last_error = 0.0
+  delta      = 0.0
+  integral   = 0.0
+  loop_count = 0
+  pdi        = 0.0
+  change     = 0.0
+
+  if sensor == "left":
+    sensor_func = getColorLeft   
+    scale = scale * -1.0
+    print("left")
+
+  while stop_func(loop_count, pdi, change):
+    loop_count += 1
+    error      = (target - sensor_func()) / 50.0
+    delta      = last_error - error 
+    last_error = error
+    integral   = integral + error
+    pdi        = (kp * error + kd * delta + ki * integral)
+    change     =  pdi * scale * speed
+    motor_l.run(speed + change)
+    motor_r.run(speed - change)
+    # print((delta, pdi))
+
 #------------------------------------------------------------------------#
 def numberToColor(num):
   if num == Color.BLACK:
