@@ -19,9 +19,6 @@ def Task6():    # Missoin: Stau
   driveDistance(-7.5, 250.0, 0.0, 300.0)
   alignBackward()
   brick.sound.beep()
-  searchLine(150.0, "right", "white", stop=False) 
-  searchLine(150.0, "right", "black", stop=False) 
-  searchLine(150.0, "right", "white")
   Task7_new() 
 
 #------------------------------------------------------------------------#
