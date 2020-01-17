@@ -5,11 +5,11 @@ def Task6():    # Missoin: Stau
   way = 47.0
   s1  = 20.0
   s2  = 113.0
-  driveDistance(s1, 300.0)
+  driveDistance(s1, 270.0)
   way += s1
-  way += searchLine(150.0, "right", "white") 
-  way += searchLine(150.0, "right", "black") 
-  turnRobot(15.0, 300.0)
+  way += searchLine(120.0, "right", "white") 
+  way += searchLine(120.0, "right", "black") 
+  turnRobot(15.0, 260.0)
   # ueber den Satz des Pythagoras errechnen wir, wie weit wir noch fahren muessen
   dist = math.sqrt(way*way - 23.0*23.0)
   print("to Go ***********************")
@@ -78,18 +78,23 @@ def Run02_Kran():
   # turnRobot(-90.0, 150.0)
   # driveDistance(-10.0,200.0)
   # alignBackward(v = 200.0)
-  motor_r.run_angle(-310.0, 180.0)
-  resetMotors()
-  alignBackward(tor = 23)
-  resetMotors()
-  wait(100)
-  driveDistance(69.0, 250.0)
-  wait(500)
-  motor_l.run_angle(200.0, 180.0)
-  driveDistance(-30.0, 500.0)
-  turnRobot(60.0, 400.0)
-  driveDistance(-60.0, 500.0)
-  turnRobot(-90.0, 500.0)
+  
+  # motor_r.run_angle(-70, 90.0)
+  # resetMotors()
+  # alignBackward()
+  # driveDistance(69.0, 250.0)
+  # wait(1000)
+  # driveDistance(-30.0, 500.0)
+  # turnRobot(60.0, 400.0)
+  # driveDistance(-60.0, 500.0)
+  # turnRobot(-90.0, 500.0)
+
+  driveDistance(60.0, 400.0, steer=15.0)
+  robot.drive_time(300.0, 0.0, 3000.0)
+  driveDistance(-50.0, 500.0)
+  turnRobot(90.0, 300.0)
+  driveDistance(-40.0, 500.0)
+  turnRobot(-90.0, 400.0)
 #---------------------------------------------------------#
 def Run03_Haus():
   alignBackward()
@@ -102,8 +107,8 @@ def Run03_Haus():
 #---------------------------------------------------------#
 def Run04_Bruecke():
   alignBackward()
-  driveDistance(15.0,200)
-  turnRobot(88.0, 200)
+  driveDistance(18.0,200)
+  turnRobot(90.0, 160)
   driveDistance(82.0, 300.0)
   wingLeft()
   driveDistance(27.0,300.0)
@@ -115,7 +120,6 @@ def Run04_Bruecke():
   turnRobot(-26.8, 150.0)
   driveDistance(-60.0, 400.0)
   wait(20000)
-
 #---------------------------------------------------------#
 def Run05_Stau():
   way = 47.0
