@@ -79,7 +79,7 @@ def Task8():      # Mission: Fahrstuhl
   # Rueckweg
   function_l.run_angle(400.0,90.0,Stop.HOLD)
   driveDistance(-40.0, 500.0, acc = 400.0)
-  turnRobot(34.0, 300.0)
+  turnRobot(32.0, 300.0)
   driveDistance(-140.0, 500.0, acc = 400.0)
 
 def stop_func_fahrstuhl(loop_count, pdi, change, p):
@@ -102,41 +102,9 @@ def stop_funcKran(loop_count, pdi, change, p):
 
 # Aufgabe 2 - Kran
 def Run02_Kran():
-  # resetMotors()
-  # alignBackward(v = 200.0)
-  # driveDistance(10.0,200.0)
-  # turnRobot(90.0,150.0)
-  # driveDistance(16, 100.0)
-  # turnRobot(-90.0, 150.0)
-  # driveDistance(-10.0,200.0)
-  # alignBackward(v = 200.0)
-  
-  # motor_r.run_angle(-70, 90.0)
-  # resetMotors()
-  # alignBackward()
-  # driveDistance(69.0, 250.0)
-  # wait(1000)
-  # driveDistance(-30.0, 500.0)
-  # turnRobot(60.0, 400.0)
-  # driveDistance(-60.0, 500.0)
-  # turnRobot(-90.0, 500.0)
-  
-  
-  # resetMotors()
-  # alignBackward()
-  # driveDistance(60.0, 400.0, steer = 100.0)
-  # brick.sound.beep()
-  # robot.drive_time(300.0, 0.0, 3000.0)
-  # driveDistance(-5.0, 200.0)
-  # resetMotors()
-
   resetMotors()
   driveDistance(30.0, 250.0)
   searchLine(color = "black")
-  # driveDistance(-10.0, 200.0)
-  # turnRobot(-20.0, 150.0)
-  # resetMotors()  
-  # followLine(150.0, Stop, "left")
   brick.sound.beep()
   driveDistance(2.0, 250.0)
   brick.sound.beep()
@@ -145,24 +113,23 @@ def Run02_Kran():
   resetMotors()
   followLine(100.0, stop_funcKran)
   resetMotors()
-  driveDistance(40.0, 500.0, stop = False)
-  driveDistance(60.0, 800.0)
+  driveDistance(100.0, 800.0, acc = 500.0)
   resetMotors()
   stopMotors()
-  driveDistance(-40.0, 500.0)
-  turnRobot(90.0, 300.0)
-  driveDistance(-60.0, 500.0)
-  turnRobot(-140.0, 400.0)
+  driveDistance(-40.0, 800.0, acc = 300.0)
+  turnRobot(90.0, 500.0)
+  driveDistance(-60.0, 800.0, acc = 300.0)
+  turnRobot(-140.0, 700.0)
 
 #---------------------------------------------------------#
 def Run03_Haus():
   alignBackward()
   driveDistance(50.0, 250.0, steer = - 4.5)
   turnRobot(-10.0, 100.0)
-  driveDistance(-22.0, 500.0)
-  turnRobot(60.0, 300.0)
-  driveDistance(-40.0, 500.0, stop = True)
-  turnRobot(-90.0, 500.0)
+  driveDistance(-22.0, 800.0, acc = 300.0)
+  turnRobot(60.0, 500.0)
+  driveDistance(-40.0, 800.0, stop = True, acc = 300.0)
+  turnRobot(-90.0, 800.0)
 
 #---------------------------------------------------------#
 def Run04_Bruecke():
