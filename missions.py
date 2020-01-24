@@ -52,9 +52,9 @@ def Task7():
   function_l.reset_angle(0.0)
   while (abs(function_l.angle()) < 90.0):
     function_l.run_until_stalled(800.0)
-  driveDistance(20, 200.0, 22.0, stop=False)
+  driveDistance(20, 200.0, 19.0, stop=False)
   resetMotors()
-  driveDistance(20, 200.0, -22.0, stop=False)
+  driveDistance(20, 200.0, -19.0, stop=False)
   driveDistance(10, 300.0)
   Task8()
 #------------------------------------------------------------------------#
@@ -96,7 +96,7 @@ def Run01_StauSchaukel():
 def stop_funcKran(loop_count, pdi, change, p):
   dist = deg_to_cm(motor_l.angle())
   print((loop_count, dist, pdi, change))
-  if (dist > 15.0):
+  if (dist > 10.0):
     return False
   return True
 
@@ -113,7 +113,7 @@ def Run02_Kran():
   resetMotors()
   followLine(100.0, stop_funcKran)
   resetMotors()
-  driveDistance(100.0, 800.0, acc = 500.0)
+  driveDistance(100.0, 800.0, acc = 300.0)
   resetMotors()
   stopMotors()
   driveDistance(-40.0, 800.0, acc = 300.0)
