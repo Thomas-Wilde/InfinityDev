@@ -130,8 +130,7 @@ def Run03_Haus():
   turnRobot(60.0, 500.0)
   driveDistance(-40.0, 800.0, stop = True, acc = 300.0)
   turnRobot(-90.0, 800.0)
-  function_l.set_dc_settings(50.0, 0.0)
-  function_l.run_until_stalled(200.0)
+  function_l.set_dc_settings(10.0, 0.0)
   
 #---------------------------------------------------------#
 def Run04_Bruecke():
