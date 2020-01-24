@@ -205,7 +205,8 @@ def searchLine(v=100.0, sensor = "left", color = "black", steer = 0, stop=True, 
 # sensor_func - getColorLeft() oder getColorRight()
 # stop_func   - Funktion, welche die Stop Kondition festlegt (False fuer stop)
 # scale       - Skalierungsfaktor der Korrektur MUSS NEGATIV SEIN FALLS getColorLeft()
-def followLine(v, stop_func, sensor = "right"):
+# p           - zusätzlicher Parameter für die stop Funktion
+def followLine(v, stop_func, p0 = 0.0, sensor = "right"):
   target = 50.0
   kp     = 0.88
   kd     = 0.10
@@ -227,7 +228,7 @@ def followLine(v, stop_func, sensor = "right"):
     scale = scale * -1.0
     print("left")
 
-  while stop_func(loop_count, pdi, change):
+  while stop_func(loop_count, pdi, change, p0):
     loop_count += 1
     error      = (target - sensor_func()) / 50.0
     delta      = last_error - error 
