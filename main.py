@@ -8,8 +8,6 @@ while check == False:
 #---------------------------------------------#
 from missions        import *
 
-
-
 # Programm zur Auswahl der Missionen 
 selection = 0
 missions  = [ "1 Stau, Schaukel", 
