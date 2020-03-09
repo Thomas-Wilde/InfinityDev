@@ -12,21 +12,20 @@ import math
 
 #------------------------------------------------------------------------#
 
-# wir definieren globale Variablen um auf Motoren und Sensoren zuzugreifen
-
-function_l = Motor(Port.A, Direction.COUNTERCLOCKWISE)    # linker  Modul Motor
-function_r = Motor(Port.D, Direction.COUNTERCLOCKWISE)    # rechter Modul Motor
+# wir definieren globale Variablen um auf Motoren und Sensoren zuzugreifen                                                     #12.4 bei City Shaper
+WHEEL_DISTANCE = 10.4                                     # Radstand in cm         
+WHEEL_DIAMETER = 6.24                                     # Raddurchmesser in cm                                               #9.42 bei City Shaper
+#function_l = Motor(Port.A, Direction.COUNTERCLOCKWISE)    # linker  Modul Motor
+#function_r = Motor(Port.D, Direction.COUNTERCLOCKWISE)    # rechter Modul Motor
 motor_r = Motor(Port.C, Direction.COUNTERCLOCKWISE)       # rechter Rad Motor
 motor_l = Motor(Port.B, Direction.COUNTERCLOCKWISE)       # linker  Rad Motor
-robot   = DriveBase(motor_l, motor_r, 94.2, 130.0)        # Fahrgrundlage mit beiden Rad Motoren, Raddurchmesser und Abstand zwischen den Mittelpunkten zweier Räder
-col_l = ColorSensor(Port.S2)                              # linker  Farbsensor
-col_l_range = [8, 90]                                     # Spektrum in dem der linke Farbsensor, die Reflektion ausgibt(8 - schwarz; 90 - weiß) in Prozent
-col_r = ColorSensor(Port.S3)                              # rechter Farbsensor
-col_r_range = [6, 67]                                     # Spektrum in dem der rechte Farbsensor, die Reflektion ausgibt(6 - schwarz; 67 - weiß) in Prozent
-MAX = 10000000.0                                          # Sehr hoher Wert sollten wir die maximale Leistung wollen
-WHEEL_DIAMETER = 9.42                                     # Raddurchmesser in cm
-WHEEL_CIRCUM   = WHEEL_DIAMETER * math.pi                 # Radumfang in cm
-WHEEL_DISTANCE = 12.4                                     # Radstand in cm
+robot   = DriveBase(motor_l, motor_r, WHEEL_DIAMETER * 10, 8.70)        # Fahrgrundlage mit beiden Rad Motoren, Raddurchmesser und Abstand zwischen den Mittelpunkten zweier Räder
+#col_l = ColorSensor(Port.S2)                              # linker  Farbsensor
+#col_l_range = [8, 90]                                     # Spektrum in dem der linke Farbsensor, die Reflektion ausgibt(8 - schwarz; 90 - weiß) in Prozent
+#col_r = ColorSensor(Port.S3)                              # rechter Farbsensor
+#col_r_range = [6, 67]                                     # Spektrum in dem der rechte Farbsensor, die Reflektion ausgibt(6 - schwarz; 67 - weiß) in Prozent
+MAX = 10000000.0                                          # Sehr hoher Wert sollten wir die maximale Leistung wollen                                                                                             
+WHEEL_CIRCUM   = WHEEL_DIAMETER * math.pi                 # Radumfang in cm                            
 TURN_CIRCUM    = WHEEL_DISTANCE * math.pi                 # Umfang des Wedekreis
 
 #------------------------------------------------------------------------#
@@ -85,6 +84,52 @@ def driveDistance(s, v, steer=0.0, acc=150.0, tor=100.0, stop=True):
     stopMotors()
 
 #-----------------------------------------------------------
+
+# def driveForward(s, v, acc=150.0, tor=100.0):
+#   target      = 50.0
+#   kp          = 0.88
+#   kd          = 0.10
+#   ki          = 0.02
+#   scale       = 0.25
+#   error       = 0.0
+#   last_error  = 0.0
+#   delta       = 0.0
+#   integral    = 0.0
+#   loop_count  = 0
+#   pdi         = 0.0
+#   change      = 0.0
+#   resetMotors(acc, tor)
+  
+#   if (s < 0.0):   
+#     s = s * -1.0      
+#     v = v * -1.0
+  
+#   deg = cm_to_deg(s)
+#   run = True
+#   robot.drive(v, steer)
+  
+#   while run:
+#     if (abs(motor_l.angle()) >= deg or abs(motor_r.angle()) >= deg ):
+#       run = False
+#   if stop == True:
+#     stopMotors()
+
+
+
+#   while stop_func(loop_count, pdi, change, p0):
+#     loop_count += 1
+#     error      = (target - sensor_func()) / 50.0
+#     delta      = last_error - error 
+#     last_error = error
+#     integral   = integral + error
+#     pdi        = (kp * error + kd * delta + ki * integral)
+#     change     =  pdi * scale * speed
+#     motor_l.run(speed + change)
+#     motor_r.run(speed - change)
+
+
+#-----------------------------------------------------------
+
 def stopMotors():
   print("stop motors")
   while ((abs(motor_l.speed()) >= 10.0 or abs(motor_r.speed()) >= 10.0)):
@@ -128,7 +173,7 @@ def turnRobot(deg, v):
   run  = True
   while run:
     #print((motor_l.angle(), motor_r.angle()))
-    if (abs(motor_l.angle()) >= turn):
+    if (abs(motor_l.angle()) >= turn):                            #passt nicht zu realität
       run = False
   stopMotors()
 
