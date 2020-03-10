@@ -68,10 +68,9 @@ from missions        import *
 #     wait(10)
 
 
-brick.sound.beep(750, 50, 25)
-resetMotors()
-robot.drive(50000, 0)
-wait(3000)
-robot.drive(-50000, 0)
-wait(3000)
-stopMotors
+#brick.sound.beep(750, 50, 25)
+driveSmoothly(300, 1000)
+# robot.drive(300, 0)
+# wait(2000)
+# print(str(deg_to_cm(abs(motor_l.speed()))))
+# wait(1000)

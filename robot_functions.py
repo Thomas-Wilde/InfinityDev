@@ -132,9 +132,38 @@ def driveDistance(s, v, steer=0.0, acc=150.0, tor=100.0, stop=True):
 
 #-----------------------------------------------------------
 
-def driveSmooth(v, s, aFactor = 1):
-  deg = cm_to_deg(s)
-   
+def driveSmoothly(v, t, s = 0, vStart = 10, vEnd =0, k = 1):
+  resetMotors(200000)
+  robot.drive(vStart, 0)
+  #v -= vStart
+  for i in range(10, 51):                               #acceleration
+    if (v*0.0004*(i**2)) >= (10*deg_to_cm(abs(motor_l.speed()))):
+      robot.drive(v*0.0004*(i**2), 0)  
+    print("acc " + str(v*0.0004*(i**2)) + " acc mes " + str(10*deg_to_cm(abs(motor_l.speed()))))
+    #wait(5)
+  #brick.sound.beep(750, 50, 25)                          #straight
+  s = deg_to_cm(abs(motor_l.angle()))
+  print("weg in cm: " + str(s))
+  print("----------------------------")
+  robot.drive(v, 0)
+  wait(t)
+  print("v " + str(10*deg_to_cm(abs(motor_l.speed()))))
+  #brick.sound.beep(750, 50, 25)
+  resetMotors(20)
+  vOld = 10*deg_to_cm(abs(motor_l.speed()))
+  for i in range(21):                                   #deceleration
+    # if (10*deg_to_cm(abs(motor_l.speed())) <= vOld) and (v-v*0.0001*(i**2)+2 < vOld):
+    #   robot.drive(v-v*0.0001*(i**2), 0)
+    #   print("SHIFT dec calc " + str(v-v*0.0001*(i**2)) + " dec mes " + str(10*deg_to_cm(abs(motor_l.speed()))))
+    # else:
+    #   print("dec calc " + str(v-v*0.0001*(i**2)) + " dec mes " + str(10*deg_to_cm(abs(motor_l.speed()))))
+    # vOld = 10*deg_to_cm(abs(motor_l.speed()))
+    vCurrent = v - i*0.05*v
+    robot.drive(vCurrent, 0)
+    print("dec calc " + str(vCurrent) + " dec mes " + str(10*deg_to_cm(abs(motor_l.speed()))))
+  brick.sound.beep(750, 50, 25)
+  s = deg_to_cm(abs(motor_l.angle()))
+  print("weg in cm: " + str(s))
 
 
 
