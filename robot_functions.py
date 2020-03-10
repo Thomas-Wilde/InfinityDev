@@ -132,7 +132,11 @@ def driveDistance(s, v, steer=0.0, acc=150.0, tor=100.0, stop=True):
 
 #-----------------------------------------------------------
 
-def driveSmoothly(v, t, s = 0, vStart = 10, vEnd =0, k = 1):
+def driveSmoothly(v, t, s = 0, vStart = 10, vEnd =0, k = 5):
+  vAlign = 60
+  vLin = 100
+  count = 0
+  run = True
   resetMotors(200000)
   robot.drive(vStart, 0)
   #v -= vStart
@@ -141,26 +145,38 @@ def driveSmoothly(v, t, s = 0, vStart = 10, vEnd =0, k = 1):
       robot.drive(v*0.0004*(i**2), 0)  
     print("acc " + str(v*0.0004*(i**2)) + " acc mes " + str(10*deg_to_cm(abs(motor_l.speed()))))
     #wait(5)
-  #brick.sound.beep(750, 50, 25)                          #straight
+  brick.sound.beep(750, 50, 25)                          #straight
   s = deg_to_cm(abs(motor_l.angle()))
   print("weg in cm: " + str(s))
   print("----------------------------")
   robot.drive(v, 0)
   wait(t)
   print("v " + str(10*deg_to_cm(abs(motor_l.speed()))))
-  #brick.sound.beep(750, 50, 25)
+  brick.sound.beep(750, 50, 25)
   resetMotors(20)
   vOld = 10*deg_to_cm(abs(motor_l.speed()))
-  for i in range(21):                                   #deceleration
+  vCurrent = v
+  #for i in range(101):                                   #deceleration
     # if (10*deg_to_cm(abs(motor_l.speed())) <= vOld) and (v-v*0.0001*(i**2)+2 < vOld):
     #   robot.drive(v-v*0.0001*(i**2), 0)
     #   print("SHIFT dec calc " + str(v-v*0.0001*(i**2)) + " dec mes " + str(10*deg_to_cm(abs(motor_l.speed()))))
     # else:
     #   print("dec calc " + str(v-v*0.0001*(i**2)) + " dec mes " + str(10*deg_to_cm(abs(motor_l.speed()))))
     # vOld = 10*deg_to_cm(abs(motor_l.speed()))
-    vCurrent = v - i*0.05*v
+  while run:
+    if vCurrent > vLin:
+      count +=1
+      vCurrent = v - count*k
+      robot.drive(vCurrent, 0)
+      print(str(vCurrent) + " | " + str(10*deg_to_cm(abs(motor_l.speed()))))
+      wait(10)
+    else:
+      run = False
+  brick.sound.beep(750, 50, 25) 
+  for i in range(51):                             #Geschwindigkeit bis s errreicht halten -> optimale v ermitteln
+    vCurrent = 100 - 0.04*i**2
     robot.drive(vCurrent, 0)
-    print("dec calc " + str(vCurrent) + " dec mes " + str(10*deg_to_cm(abs(motor_l.speed()))))
+    print(str(vCurrent) + " | " + str(10*deg_to_cm(abs(motor_l.speed()))))
   brick.sound.beep(750, 50, 25)
   s = deg_to_cm(abs(motor_l.angle()))
   print("weg in cm: " + str(s))
@@ -212,7 +228,7 @@ def turnRobot(deg, v):
   run  = True
   while run:
     print((motor_l.angle(), motor_r.angle()))
-    if (abs(motor_l.angle()) >= turn):                            #passt nicht zu realität
+    if (abs(motor_l.angle()) >= turn):                           
       run = False
   stopMotors()
 
