@@ -69,4 +69,9 @@ from missions        import *
 
 
 brick.sound.beep(750, 50, 25)
-turnRobot(180.0, 100.0)
+resetMotors()
+robot.drive(50000, 0)
+wait(3000)
+robot.drive(-50000, 0)
+wait(3000)
+stopMotors

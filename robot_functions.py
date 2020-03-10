@@ -19,27 +19,29 @@ WHEEL_DIAMETER = 6.24                                     # Raddurchmesser in cm
 #function_r = Motor(Port.D, Direction.COUNTERCLOCKWISE)    # rechter Modul Motor
 motor_r = Motor(Port.C, Direction.COUNTERCLOCKWISE)       # rechter Rad Motor
 motor_l = Motor(Port.B, Direction.COUNTERCLOCKWISE)       # linker  Rad Motor
-robot   = DriveBase(motor_l, motor_r, WHEEL_DIAMETER * 10, 8.70)        # Fahrgrundlage mit beiden Rad Motoren, Raddurchmesser und Abstand zwischen den Mittelpunkten zweier Räder
+robot   = DriveBase(motor_l, motor_r, WHEEL_DIAMETER * 10, 87.0)        # Fahrgrundlage mit beiden Rad Motoren, Raddurchmesser und Abstand zwischen den Mittelpunkten zweier Räder
 #col_l = ColorSensor(Port.S2)                              # linker  Farbsensor
 #col_l_range = [8, 90]                                     # Spektrum in dem der linke Farbsensor, die Reflektion ausgibt(8 - schwarz; 90 - weiß) in Prozent
 #col_r = ColorSensor(Port.S3)                              # rechter Farbsensor
 #col_r_range = [6, 67]                                     # Spektrum in dem der rechte Farbsensor, die Reflektion ausgibt(6 - schwarz; 67 - weiß) in Prozent
+ultraSonic = UltrasonicSensor(Port.S1)
 MAX = 10000000.0                                          # Sehr hoher Wert sollten wir die maximale Leistung wollen                                                                                             
 WHEEL_CIRCUM   = WHEEL_DIAMETER * math.pi                 # Radumfang in cm                            
 TURN_CIRCUM    = WHEEL_DISTANCE * math.pi                 # Umfang des Wedekreis
+cm_per_deg = WHEEL_CIRCUM / 360.0
+dailyDegreeFactor = 0.95
+dailyDistanceFactor = 1
 
 #------------------------------------------------------------------------#
 
 def cm_to_deg(dist):
-  s_per_deg = WHEEL_CIRCUM / 360.0
-  deg = dist / s_per_deg
+  deg = dist / cm_per_deg
   return deg
 
 #------------------------------------------------------------------------#
 
 def deg_to_cm(deg):
-  s_per_deg = WHEEL_CIRCUM / 360.0
-  dist = deg * s_per_deg
+  dist = deg * cm_per_deg
   return dist
 
 #------------------------------------------------------------------------#
@@ -73,7 +75,7 @@ def driveDistance(s, v, steer=0.0, acc=150.0, tor=100.0, stop=True):
     s = s * -1.0      
     v = v * -1.0
   #--- Weg in Umdrehungen (Grad) umrechnen
-  deg = cm_to_deg(s)
+  deg = cm_to_deg(s) * dailyDistanceFactor
   run = True
   robot.drive(v, steer)
   while run:    
@@ -130,6 +132,14 @@ def driveDistance(s, v, steer=0.0, acc=150.0, tor=100.0, stop=True):
 
 #-----------------------------------------------------------
 
+def driveSmooth(v, s, aFactor = 1):
+  deg = cm_to_deg(s)
+   
+
+
+
+#-----------------------------------------------------------
+
 def stopMotors():
   print("stop motors")
   while ((abs(motor_l.speed()) >= 10.0 or abs(motor_r.speed()) >= 10.0)):
@@ -172,7 +182,7 @@ def turnRobot(deg, v):
   motor_r.run(-v)
   run  = True
   while run:
-    #print((motor_l.angle(), motor_r.angle()))
+    print((motor_l.angle(), motor_r.angle()))
     if (abs(motor_l.angle()) >= turn):                            #passt nicht zu realität
       run = False
   stopMotors()
