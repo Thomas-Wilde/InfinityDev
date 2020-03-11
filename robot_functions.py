@@ -25,6 +25,7 @@ robot   = DriveBase(motor_l, motor_r, WHEEL_DIAMETER * 10, 87.0)        # Fahrgr
 #col_r = ColorSensor(Port.S3)                              # rechter Farbsensor
 #col_r_range = [6, 67]                                     # Spektrum in dem der rechte Farbsensor, die Reflektion ausgibt(6 - schwarz; 67 - weiß) in Prozent
 ultraSonic = UltrasonicSensor(Port.S1)
+watch = StopWatch()
 MAX = 10000000.0                                          # Sehr hoher Wert sollten wir die maximale Leistung wollen                                                                                             
 WHEEL_CIRCUM   = WHEEL_DIAMETER * math.pi                 # Radumfang in cm                            
 TURN_CIRCUM    = WHEEL_DISTANCE * math.pi                 # Umfang des Wedekreis
@@ -132,54 +133,122 @@ def driveDistance(s, v, steer=0.0, acc=150.0, tor=100.0, stop=True):
 
 #-----------------------------------------------------------
 
-def driveSmoothly(v, t, s = 0, vStart = 10, vEnd =0, k = 5):
-  vAlign = 60
-  vLin = 100
-  count = 0
+def driveSmoothly(v, s = 0, sAcc = 20, sDec = 20, vSearch = 40):
+
   run = True
   resetMotors(200000)
-  robot.drive(vStart, 0)
-  #v -= vStart
-  for i in range(10, 51):                               #acceleration
-    if (v*0.0004*(i**2)) >= (10*deg_to_cm(abs(motor_l.speed()))):
-      robot.drive(v*0.0004*(i**2), 0)  
-    print("acc " + str(v*0.0004*(i**2)) + " acc mes " + str(10*deg_to_cm(abs(motor_l.speed()))))
-    #wait(5)
-  brick.sound.beep(750, 50, 25)                          #straight
-  s = deg_to_cm(abs(motor_l.angle()))
-  print("weg in cm: " + str(s))
-  print("----------------------------")
-  robot.drive(v, 0)
-  wait(t)
-  print("v " + str(10*deg_to_cm(abs(motor_l.speed()))))
-  brick.sound.beep(750, 50, 25)
-  resetMotors(20)
-  vOld = 10*deg_to_cm(abs(motor_l.speed()))
-  vCurrent = v
-  #for i in range(101):                                   #deceleration
-    # if (10*deg_to_cm(abs(motor_l.speed())) <= vOld) and (v-v*0.0001*(i**2)+2 < vOld):
-    #   robot.drive(v-v*0.0001*(i**2), 0)
-    #   print("SHIFT dec calc " + str(v-v*0.0001*(i**2)) + " dec mes " + str(10*deg_to_cm(abs(motor_l.speed()))))
-    # else:
-    #   print("dec calc " + str(v-v*0.0001*(i**2)) + " dec mes " + str(10*deg_to_cm(abs(motor_l.speed()))))
-    # vOld = 10*deg_to_cm(abs(motor_l.speed()))
-  while run:
-    if vCurrent > vLin:
-      count +=1
-      vCurrent = v - count*k
-      robot.drive(vCurrent, 0)
-      print(str(vCurrent) + " | " + str(10*deg_to_cm(abs(motor_l.speed()))))
-      wait(10)
-    else:
-      run = False
-  brick.sound.beep(750, 50, 25) 
-  for i in range(51):                             #Geschwindigkeit bis s errreicht halten -> optimale v ermitteln
-    vCurrent = 100 - 0.04*i**2
+  # robot.drive(10, 0)((10*abs(deg_to_cm(motor_l.speed()))) < v) or (t <= tAcc):
+  # piece = 0.1
+  # piece_deg = cm_to_deg(piece)
+  # n = sAcc / piece_deg  
+  # vCurrent = 30.0  
+  # deltaV = (v-vCurrent) / ((n**4) / 4)
+  # rot_old = 0.0
+  # for i in range (n):
+  #   vCurrent = vCurrent + (i**3) * deltaV
+  #   # print(str(vCurrent))
+  #   robot.drive(vCurrent, 0)
+  #   rot = abs(motor_l.angle())
+  #   while(rot < (i*piece_deg)):      
+  #     rot = abs(motor_l.angle())
+  #   d_rot = rot - rot_old
+  #   rot_old = rot
+  #   print("s={:.5f}   v={:.5f}".format(deg_to_cm(d_rot),vCurrent))
+
+  deg = cm_to_deg(s)
+  tAcc = 10 * (3 * sAcc) / v                     # t in s
+  kAcc = (0.2 * v) / (tAcc**2)                      # k in cm/s**3
+  vDec = v - vSearch
+  tDec = 3 * (3 * sDec) / vDec
+  kDec = (0.2 * v) / (tDec**2)
+  d_vDec = vDec / ((tDec**3) / 3)
+  d_vAcc = v / ((tAcc**3) / 3)
+  tnull = 0.4                                    # tnull in s
+  t = 0
+  robot.drive(20,0)
+
+  while ((10*abs(deg_to_cm(motor_l.speed()))) < v) or (t <= tAcc):
+    t = tnull + watch.time() / 1000
+    vCurrent = 5 * kAcc * (t**2)                       # vCurrent in m/s
     robot.drive(vCurrent, 0)
-    print(str(vCurrent) + " | " + str(10*deg_to_cm(abs(motor_l.speed()))))
+    print(str(vCurrent) + " | " + str(10*abs(deg_to_cm(motor_l.speed()))))
+  degAcc = abs(motor_l.angle())
+  print(str(degAcc))
+  watch.pause()
+  watch.reset()
   brick.sound.beep(750, 50, 25)
-  s = deg_to_cm(abs(motor_l.angle()))
-  print("weg in cm: " + str(s))
+
+  robot.drive(v, 0)
+  degStraight = deg - degAcc
+  print(str(degStraight))
+  while run:
+    brick.light(Color.ORANGE)
+    if (abs(motor_l.angle()) >= degStraight):
+      run = False
+  
+  run = True
+  brick.sound.beep(750, 50, 25)
+
+  t = 0
+  watch.resume()
+  while ((10*abs(deg_to_cm(motor_l.speed()))) >= vSearch):# or (t <= tDec):
+    t = watch.time() / 1000
+    vCurrent = v - 5 * kDec * (t**2)
+    robot.drive(vCurrent, 0)
+    print(str(vCurrent) + " SHIFT " + str(10*abs(deg_to_cm(motor_l.speed()))))
+  brick.sound.beep(750, 50, 25)
+
+  robot.drive(vSearch, 0)
+
+  while run:
+    if (abs(motor_l.angle()) >= deg or abs(motor_r.angle()) >= deg ):
+      run = False
+  stopMotors()
+
+
+  brick.sound.beep(750, 50, 25)
+  print("weg in cm: " + str(deg_to_cm(abs(motor_l.angle()))))
+
+
+  # for i in range(10, 51):                               #acceleration
+  #   if (v*0.0004*(i**2)) >= (10*deg_to_cm(abs(motor_l.speed()))):
+  #     robot.drive(v*0.0004*(i**2), 0)  
+  #   print(str(v*0.0004*(i**2)) + " " + str(10*deg_to_cm(abs(motor_l.speed()))))
+  #   #wait(5)
+  # s = deg_to_cm(abs(motor_l.angle()))
+  # print("weg in cm: " + str(s))
+  # print("----------------------------")
+  # robot.drive(v, 0)
+  # wait(1500)
+  # print("v " + str(10*deg_to_cm(abs(motor_l.speed()))))
+  # brick.sound.beep(750, 50, 25)
+  # resetMotors(20)
+  # vOld = 10*deg_to_cm(abs(motor_l.speed()))
+  # vCurrent = v
+  # for i in range(50, 9, -1):                               #deceleration
+  #   robot.drive(v*0.0004*(i**2), 0)  
+  #   print(str(v*0.0004*(i**2)) + " " + str(10*deg_to_cm(abs(motor_l.speed()))))
+  # for i in range(101):                                   #deceleration
+  #   if (10*deg_to_cm(abs(motor_l.speed())) <= vOld) and (v-v*0.0001*(i**2)+2 < vOld):
+  #     robot.drive(v-v*0.0001*(i**2), 0)
+  #     print("SHIFT dec calc " + str(v-v*0.0001*(i**2)) + " dec mes " + str(10*deg_to_cm(abs(motor_l.speed()))))
+  #   else:
+  #     print("dec calc " + str(v-v*0.0001*(i**2)) + " dec mes " + str(10*deg_to_cm(abs(motor_l.speed()))))
+  #   vOld = 10*deg_to_cm(abs(motor_l.speed()))
+  # while run:
+  #   if vCurrent > vLin:
+  #     count +=1
+  #     vCurrent = v - count*k
+  #     robot.drive(vCurrent, 0)
+  #     print(str(vCurrent) + " | " + str(10*deg_to_cm(abs(motor_l.speed()))))
+  #     wait(10)
+  #   else:
+  #     run = False
+  # brick.sound.beep(750, 50, 25) 
+  # for i in range(51):                             #Geschwindigkeit bis s errreicht halten -> optimale v ermitteln
+  #   vCurrent = 100 - 0.04*i**2
+  #   robot.drive(vCurrent, 0)
+  #   print(str(vCurrent) + " | " + str(10*deg_to_cm(abs(motor_l.speed()))))
 
 
 

@@ -69,8 +69,8 @@ from missions        import *
 
 
 #brick.sound.beep(750, 50, 25)
-driveSmoothly(300, 1000)
-# robot.drive(300, 0)
-# wait(2000)
+#robot.drive(40, 0)
+driveSmoothly(300, 60)
+#wait(10000)
 # print(str(deg_to_cm(abs(motor_l.speed()))))
 # wait(1000)
