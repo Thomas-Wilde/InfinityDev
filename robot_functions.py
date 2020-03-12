@@ -17,14 +17,14 @@ WHEEL_DISTANCE = 10.4                                     # Radstand in cm
 WHEEL_DIAMETER = 6.24                                     # Raddurchmesser in cm                                               #9.42 bei City Shaper
 #function_l = Motor(Port.A, Direction.COUNTERCLOCKWISE)    # linker  Modul Motor
 #function_r = Motor(Port.D, Direction.COUNTERCLOCKWISE)    # rechter Modul Motor
-motor_r = Motor(Port.C, Direction.COUNTERCLOCKWISE)       # rechter Rad Motor
-motor_l = Motor(Port.B, Direction.COUNTERCLOCKWISE)       # linker  Rad Motor
+motor_r = Motor(Port.C, Direction.CLOCKWISE)       # rechter Rad Motor
+motor_l = Motor(Port.B, Direction.CLOCKWISE)       # linker  Rad Motor
 robot   = DriveBase(motor_l, motor_r, WHEEL_DIAMETER * 10, 87.0)        # Fahrgrundlage mit beiden Rad Motoren, Raddurchmesser und Abstand zwischen den Mittelpunkten zweier Räder
 #col_l = ColorSensor(Port.S2)                              # linker  Farbsensor
 #col_l_range = [8, 90]                                     # Spektrum in dem der linke Farbsensor, die Reflektion ausgibt(8 - schwarz; 90 - weiß) in Prozent
 #col_r = ColorSensor(Port.S3)                              # rechter Farbsensor
 #col_r_range = [6, 67]                                     # Spektrum in dem der rechte Farbsensor, die Reflektion ausgibt(6 - schwarz; 67 - weiß) in Prozent
-ultraSonic = UltrasonicSensor(Port.S1)
+gyro = GyroSensor(Port.S4, Direction.COUNTERCLOCKWISE)
 watch = StopWatch()
 MAX = 10000000.0                                          # Sehr hoher Wert sollten wir die maximale Leistung wollen                                                                                             
 WHEEL_CIRCUM   = WHEEL_DIAMETER * math.pi                 # Radumfang in cm                            
@@ -130,6 +130,60 @@ def driveDistance(s, v, steer=0.0, acc=150.0, tor=100.0, stop=True):
 #     motor_l.run(speed + change)
 #     motor_r.run(speed - change)
 
+#-----------------------------------------------------------
+
+def gyroDrive(v):
+  target = 0
+  kp = 0.9
+  ki= 0.01
+  kd = 0.09
+  error = 0
+  diff = 0
+  integral = 0
+  prop = 0
+  last_prop = 0
+  scale = 5
+  delta = 100
+  motor_r.run(50)
+  wait(250)
+  while True:
+    angle = gyro.angle()
+    prop = target - angle
+    integral += prop
+    diff = last_prop - prop
+    error = kp * prop + ki * integral + kd * diff
+    last_prop = prop
+    print(str(angle) + " " + str(prop) + " " + str(integral) + " " + str(diff) + " " + str(error) + " ")
+    change = error * scale
+    motor_r.run(v - change)
+    motor_l.run(v + change)
+    wait(5)
+
+def sensorDrive(v):
+  wait(250)
+  target = 0
+  kp = 0.9
+  ki= 0.01
+  kd = 0.09
+  error = 0
+  diff = 0
+  integral = 0
+  prop = 0
+  last_prop = 0
+  scale = 5
+  delta = 100
+  while True:
+    difference = motor_l.angle() - motor_r.angle()
+    prop = target - difference
+    integral += prop
+    diff = last_prop - prop
+    error = kp * prop + ki * integral + kd * diff
+    last_prop = prop
+    change = error * scale
+    print(str(difference) + " " + str(prop) + " " + str(integral) + " " + str(diff) + " " + str(error) + " " + str(change))
+    motor_r.run(v - change)
+    motor_l.run(v + change)
+    wait(25)
 
 #-----------------------------------------------------------
 

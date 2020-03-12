@@ -70,4 +70,6 @@ from missions        import *
 
 
 #driveSmoothly(400, 100)
-driveDistance(100, 400)
+#alignBackward()
+while True:
+    sensorDrive(500)
