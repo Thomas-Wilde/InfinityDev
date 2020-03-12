@@ -30,8 +30,8 @@ MAX = 10000000.0                                          # Sehr hoher Wert soll
 WHEEL_CIRCUM   = WHEEL_DIAMETER * math.pi                 # Radumfang in cm                            
 TURN_CIRCUM    = WHEEL_DISTANCE * math.pi                 # Umfang des Wedekreis
 cm_per_deg = WHEEL_CIRCUM / 360.0
-dailyDegreeFactor = 0.95
-dailyDistanceFactor = 1
+dailyTurnFactor = 0.95
+dailyDistanceFactor = 1 
 
 #------------------------------------------------------------------------#
 
@@ -133,11 +133,81 @@ def driveDistance(s, v, steer=0.0, acc=150.0, tor=100.0, stop=True):
 
 #-----------------------------------------------------------
 
-def driveSmoothly(v, s = 0, sAcc = 20, sDec = 20, vSearch = 40):
+def driveSmoothly(v, s = 0, sAcc = 15, sDec = 15, vSearch = 40, buffer = 0.25):
+  
+  if deg < (cm_to_deg(sAcc) + cm_to_deg(sDec)): #Überprüfung, ob Weg ausreichend ist + Anpassung
+    v = v * 0.5
+    d_k = 0.75   
 
   run = True
   resetMotors(200000)
-  # robot.drive(10, 0)((10*abs(deg_to_cm(motor_l.speed()))) < v) or (t <= tAcc):
+  deg = cm_to_deg(s) * dailyDistanceFactor
+  d_k = 1
+  tAcc = 10 * (3 * sAcc) / v                   
+  kAcc = d_k * (0.2 * v) / (tAcc**2)                   
+  vDec = v - vSearch
+  tDec = 3 * (3 * sDec) / vDec
+  kDec = d_k * (0.2 * v) / (tDec**2)
+  d_vDec = vDec / ((tDec**3) / 3)
+  d_vAcc = v / ((tAcc**3) / 3)
+  tnull = 0.4                                   
+  t = 0
+  robot.drive(20,0)
+
+  # Beschleunigung -------------------------------------------------------
+
+  while (((10*abs(deg_to_cm(motor_l.speed()))) <= v) or ((10*abs(deg_to_cm(motor_r.speed()))) <= v)) and (t <= tAcc):
+    t = tnull + watch.time() / 1000
+    vCurrent = 5 * kAcc * (t**2)                     
+    robot.drive(vCurrent, 0)
+    print(str(vCurrent) + " " + str(10*abs(deg_to_cm(motor_l.speed()))) + " " + str(10*abs(deg_to_cm(motor_r.speed()))))
+  degAcc = abs(motor_l.angle())
+
+  # Geschwindigkeit halten -----------------------------------------------
+
+  watch.pause()
+  watch.reset()
+  brick.sound.beep(750, 50, 25)
+  robot.drive(vCurrent, 0)
+  v = vCurrent
+  degStraight = deg - degAcc - buffer * v
+  while run:
+    print(str(vCurrent) + " " + str(10*abs(deg_to_cm(motor_l.speed()))))
+    brick.light(Color.ORANGE)
+    if (motor_l.angle() >= degStraight or motor_r.angle() >= degStraight):
+      run = False
+  
+  # Abbremsen -------------------------------------------------------------
+
+  run = True
+  brick.sound.beep(750, 50, 25)
+  t = 0
+  watch.resume()
+  while ((10*abs(deg_to_cm(motor_l.speed()))) >= vSearch or (10*abs(deg_to_cm(motor_r.speed())) >= vSearch)): #or (t <= tDec):
+    if (motor_l.angle() >= deg or motor_r.angle() >= deg):
+      brick.sound.beep(3000, 50, 25)
+      break
+    t = watch.time() / 1000
+    vCurrent = v - 3 * kDec * (t**2)
+    if vCurrent >= 0:
+      robot.drive(vCurrent, 0)
+      print(str(vCurrent) + " " + str(10*abs(deg_to_cm(motor_l.speed()))))
+  brick.sound.beep(750, 50, 25)
+
+  # Suchen ----------------------------------------------------------------
+
+  robot.drive(vSearch, 0)
+  while run:
+    print(str(vSearch) + " " + str(10*abs(deg_to_cm(motor_l.speed()))))
+    if (abs(motor_l.angle()) >= deg or abs(motor_r.angle()) >= deg):
+      run = False
+  stopMotors()
+
+
+  brick.sound.beep(750, 50, 25)
+  print("weg in cm: " + str(deg_to_cm(abs(motor_l.angle()))))
+
+  # robot.drive(10, 0)
   # piece = 0.1
   # piece_deg = cm_to_deg(piece)
   # n = sAcc / piece_deg  
@@ -154,61 +224,6 @@ def driveSmoothly(v, s = 0, sAcc = 20, sDec = 20, vSearch = 40):
   #   d_rot = rot - rot_old
   #   rot_old = rot
   #   print("s={:.5f}   v={:.5f}".format(deg_to_cm(d_rot),vCurrent))
-
-  deg = cm_to_deg(s)
-  tAcc = 10 * (3 * sAcc) / v                     # t in s
-  kAcc = (0.2 * v) / (tAcc**2)                      # k in cm/s**3
-  vDec = v - vSearch
-  tDec = 3 * (3 * sDec) / vDec
-  kDec = (0.2 * v) / (tDec**2)
-  d_vDec = vDec / ((tDec**3) / 3)
-  d_vAcc = v / ((tAcc**3) / 3)
-  tnull = 0.4                                    # tnull in s
-  t = 0
-  robot.drive(20,0)
-
-  while ((10*abs(deg_to_cm(motor_l.speed()))) < v) or (t <= tAcc):
-    t = tnull + watch.time() / 1000
-    vCurrent = 5 * kAcc * (t**2)                       # vCurrent in m/s
-    robot.drive(vCurrent, 0)
-    print(str(vCurrent) + " | " + str(10*abs(deg_to_cm(motor_l.speed()))))
-  degAcc = abs(motor_l.angle())
-  print(str(degAcc))
-  watch.pause()
-  watch.reset()
-  brick.sound.beep(750, 50, 25)
-
-  robot.drive(v, 0)
-  degStraight = deg - degAcc
-  print(str(degStraight))
-  while run:
-    brick.light(Color.ORANGE)
-    if (abs(motor_l.angle()) >= degStraight):
-      run = False
-  
-  run = True
-  brick.sound.beep(750, 50, 25)
-
-  t = 0
-  watch.resume()
-  while ((10*abs(deg_to_cm(motor_l.speed()))) >= vSearch):# or (t <= tDec):
-    t = watch.time() / 1000
-    vCurrent = v - 5 * kDec * (t**2)
-    robot.drive(vCurrent, 0)
-    print(str(vCurrent) + " SHIFT " + str(10*abs(deg_to_cm(motor_l.speed()))))
-  brick.sound.beep(750, 50, 25)
-
-  robot.drive(vSearch, 0)
-
-  while run:
-    if (abs(motor_l.angle()) >= deg or abs(motor_r.angle()) >= deg ):
-      run = False
-  stopMotors()
-
-
-  brick.sound.beep(750, 50, 25)
-  print("weg in cm: " + str(deg_to_cm(abs(motor_l.angle()))))
-
 
   # for i in range(10, 51):                               #acceleration
   #   if (v*0.0004*(i**2)) >= (10*deg_to_cm(abs(motor_l.speed()))):
@@ -286,7 +301,7 @@ def alignBackward(v=70.0, tor=20.0):
 # deg - Drehgrad (<0.0 für Gegenuhrzeigersinn)
 def turnRobot(deg, v):
   s = TURN_CIRCUM * deg / 360.0
-  turn = cm_to_deg(abs(s))
+  turn = cm_to_deg(abs(s)) * dailyTurnFactor
   resetMotors()
   #--- zum Drehen in Gegenuhrzeigersinn brauchen wir negativen Speed
   if (deg < 0.0):
