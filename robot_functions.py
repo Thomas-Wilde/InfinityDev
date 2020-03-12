@@ -135,8 +135,8 @@ def driveDistance(s, v, steer=0.0, acc=150.0, tor=100.0, stop=True):
 def gyroDrive(v):
   target = 0
   kp = 0.9
-  ki= 0.01
-  kd = 0.09
+  ki= 0.0
+  kd = 0.1
   error = 0
   diff = 0
   integral = 0
@@ -144,20 +144,34 @@ def gyroDrive(v):
   last_prop = 0
   scale = 5
   delta = 100
-  motor_r.run(50)
   wait(250)
+  gyro.reset_angle(0)
+  count = 0
   while True:
+    count += 1
+    if count == 60:
+      angle = gyro.angle()
+      gyro.reset_angle(angle-1)
+    
     angle = gyro.angle()
+    if angle == 1:
+      continue
+
     prop = target - angle
     integral += prop
     diff = last_prop - prop
     error = kp * prop + ki * integral + kd * diff
     last_prop = prop
     print(str(angle) + " " + str(prop) + " " + str(integral) + " " + str(diff) + " " + str(error) + " ")
+
+    if diff != 0:
+      print((count, diff))
+      count = 0
+
+
     change = error * scale
-    motor_r.run(v - change)
     motor_l.run(v + change)
-    wait(5)
+    motor_r.run(v - change)
 
 def sensorDrive(v):
   wait(250)
@@ -183,19 +197,19 @@ def sensorDrive(v):
     print(str(difference) + " " + str(prop) + " " + str(integral) + " " + str(diff) + " " + str(error) + " " + str(change))
     motor_r.run(v - change)
     motor_l.run(v + change)
-    wait(25)
+    #wait(25)
 
 #-----------------------------------------------------------
 
 def driveSmoothly(v, s = 0, sAcc = 15, sDec = 15, vSearch = 40, buffer = 0.25):
   
+  deg = cm_to_deg(s) * dailyDistanceFactor
   if deg < (cm_to_deg(sAcc) + cm_to_deg(sDec)): #Überprüfung, ob Weg ausreichend ist + Anpassung
     v = v * 0.5
     d_k = 0.75   
 
   run = True
   resetMotors(200000)
-  deg = cm_to_deg(s) * dailyDistanceFactor
   d_k = 1
   tAcc = 10 * (3 * sAcc) / v                   
   kAcc = d_k * (0.2 * v) / (tAcc**2)                   
