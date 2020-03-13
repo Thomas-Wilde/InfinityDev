@@ -30,7 +30,7 @@ MAX = 10000000.0                                          # Sehr hoher Wert soll
 WHEEL_CIRCUM   = WHEEL_DIAMETER * math.pi                 # Radumfang in cm                            
 TURN_CIRCUM    = WHEEL_DISTANCE * math.pi                 # Umfang des Wedekreis
 cm_per_deg = WHEEL_CIRCUM / 360.0
-dailyTurnFactor = 0.98
+dailyTurnFactor = 0.95
 dailyDistanceFactor = 1 
 
 #------------------------------------------------------------------------#
@@ -99,7 +99,7 @@ def driveDistance(s, v, steer=0.0, acc=150.0, tor=100.0, stop=True):
 #   delta       = 0.0
 #   integral    = 0.0
 #   loop_count  = 0
-#   pid         = 0.0
+#   pdi         = 0.0
 #   change      = 0.0
 #   resetMotors(acc, tor)
   
@@ -119,7 +119,7 @@ def driveDistance(s, v, steer=0.0, acc=150.0, tor=100.0, stop=True):
 
 
 
-#   while stop_func(loop_count, pid, change, p0):
+#   while stop_func(loop_count, pdi, change, p0):
 #     loop_count += 1
 #     error      = (target - sensor_func()) / 50.0
 #     delta      = last_error - error 
