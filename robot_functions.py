@@ -30,7 +30,7 @@ MAX = 10000000.0                                          # Sehr hoher Wert soll
 WHEEL_CIRCUM   = WHEEL_DIAMETER * math.pi                 # Radumfang in cm                            
 TURN_CIRCUM    = WHEEL_DISTANCE * math.pi                 # Umfang des Wedekreis
 cm_per_deg = WHEEL_CIRCUM / 360.0
-dailyTurnFactor = 0.95
+dailyTurnFactor = 0.98
 dailyDistanceFactor = 1 
 
 #------------------------------------------------------------------------#
@@ -99,7 +99,7 @@ def driveDistance(s, v, steer=0.0, acc=150.0, tor=100.0, stop=True):
 #   delta       = 0.0
 #   integral    = 0.0
 #   loop_count  = 0
-#   pdi         = 0.0
+#   pid         = 0.0
 #   change      = 0.0
 #   resetMotors(acc, tor)
   
@@ -119,7 +119,7 @@ def driveDistance(s, v, steer=0.0, acc=150.0, tor=100.0, stop=True):
 
 
 
-#   while stop_func(loop_count, pdi, change, p0):
+#   while stop_func(loop_count, pid, change, p0):
 #     loop_count += 1
 #     error      = (target - sensor_func()) / 50.0
 #     delta      = last_error - error 
@@ -173,6 +173,8 @@ def gyroDrive(v):
     motor_l.run(v + change)
     motor_r.run(v - change)
 
+#-----------------------------------------------------------------
+
 def sensorDrive(v):
   wait(250)
   target = 0
@@ -186,6 +188,7 @@ def sensorDrive(v):
   last_prop = 0
   scale = 5
   delta = 100
+  resetMotors()
   while True:
     difference = motor_l.angle() - motor_r.angle()
     prop = target - difference
@@ -194,83 +197,142 @@ def sensorDrive(v):
     error = kp * prop + ki * integral + kd * diff
     last_prop = prop
     change = error * scale
-    print(str(difference) + " " + str(prop) + " " + str(integral) + " " + str(diff) + " " + str(error) + " " + str(change))
+    #print(str(difference) + " " + str(prop) + " " + str(integral) + " " + str(diff) + " " + str(error) + " " + str(change))
     motor_r.run(v - change)
     motor_l.run(v + change)
     #wait(25)
 
 #-----------------------------------------------------------
-
-def driveSmoothly(v, s = 0, sAcc = 15, sDec = 15, vSearch = 40, buffer = 0.25):
-  
-  deg = cm_to_deg(s) * dailyDistanceFactor
-  if deg < (cm_to_deg(sAcc) + cm_to_deg(sDec)): #Überprüfung, ob Weg ausreichend ist + Anpassung
-    v = v * 0.5
-    d_k = 0.75   
-
-  run = True
-  resetMotors(200000)
-  d_k = 1
-  tAcc = 10 * (3 * sAcc) / v                   
-  kAcc = d_k * (0.2 * v) / (tAcc**2)                   
-  vDec = v - vSearch
-  tDec = 3 * (3 * sDec) / vDec
-  kDec = d_k * (0.2 * v) / (tDec**2)
-  d_vDec = vDec / ((tDec**3) / 3)
-  d_vAcc = v / ((tAcc**3) / 3)
-  tnull = 0.4                                   
+def acceleration(v, sAcc = 15, vStart = 0,  d_k = 1, pid = True):
+  global vCurrent
+  global degAcc
   t = 0
-  robot.drive(20,0)
-
-  # Beschleunigung -------------------------------------------------------
-
+  tnull = 0.4
+  tAcc = 10 * (3 * sAcc) / v                   
+  kAcc = d_k * (0.2 * v) / (tAcc**2) 
   while (((10*abs(deg_to_cm(motor_l.speed()))) <= v) or ((10*abs(deg_to_cm(motor_r.speed()))) <= v)) and (t <= tAcc):
     t = tnull + watch.time() / 1000
-    vCurrent = 5 * kAcc * (t**2)                     
-    robot.drive(vCurrent, 0)
+    vCurrent = vStart + 5 * kAcc * (t**2)
+    if pid == False:                     
+      robot.drive(vCurrent, 0)
+    else:
+      print("wip")    
     print(str(vCurrent) + " " + str(10*abs(deg_to_cm(motor_l.speed()))) + " " + str(10*abs(deg_to_cm(motor_r.speed()))))
   degAcc = abs(motor_l.angle())
-
-  # Geschwindigkeit halten -----------------------------------------------
-
   watch.pause()
-  watch.reset()
-  brick.sound.beep(750, 50, 25)
-  robot.drive(vCurrent, 0)
-  v = vCurrent
-  degStraight = deg - degAcc - buffer * v
-  while run:
-    print(str(vCurrent) + " " + str(10*abs(deg_to_cm(motor_l.speed()))))
-    brick.light(Color.ORANGE)
-    if (motor_l.angle() >= degStraight or motor_r.angle() >= degStraight):
-      run = False
-  
-  # Abbremsen -------------------------------------------------------------
 
+def straight(v, deg, pid = True):
   run = True
-  brick.sound.beep(750, 50, 25)
-  t = 0
+  if pid == False:
+    robot.drive(v, 0)
+    while run:
+      print(str(v) + " " + str(10*abs(deg_to_cm(motor_l.speed()))))
+      if (motor_l.angle() >= deg or motor_r.angle() >= deg):
+        run = False
+  else:
+    target = 0
+    kp = 1
+    ki = 0
+    kd = 0
+    scale = 1
+    last_proportional = 0
+    print("wip")
+    while run:
+      print(str(v) + " " + str(10*abs(deg_to_cm(motor_l.speed()))))
+      difference = motor_l.angle() - motor_r.angle()
+      proportional = target - difference
+      change = pidCalc(proportional, last_proportional, scale, kp, ki, kd)
+      last_proportional = proportional
+      motor_l.run(v + change)
+      motor_r.run(v - change)
+      if (motor_l.angle() >= deg or motor_r.angle() >= deg):
+        run = False
+
+def deceleration(v, sDec = 15, vEnd = 0, degToGo = 1000000000000, d_k = 1, pid = True):
+  vDec = v - vEnd
+  tDec = 3 * (3 * sDec) / vDec
+  kDec = d_k * (0.2 * v) / (tDec**2)
+  watch.reset()
   watch.resume()
-  while ((10*abs(deg_to_cm(motor_l.speed()))) >= vSearch or (10*abs(deg_to_cm(motor_r.speed())) >= vSearch)): #or (t <= tDec):
-    if (motor_l.angle() >= deg or motor_r.angle() >= deg):
-      brick.sound.beep(3000, 50, 25)
+  while ((10*abs(deg_to_cm(motor_l.speed()))) >= vEnd or (10*abs(deg_to_cm(motor_r.speed())) >= vEnd)): #or (t <= tDec):
+    if (motor_l.angle() >= degToGo or motor_r.angle() >= degToGo):
+      brick.light(Color.ORANGE)
       break
     t = watch.time() / 1000
     vCurrent = v - 3 * kDec * (t**2)
-    if vCurrent >= 0:
-      robot.drive(vCurrent, 0)
+    if vCurrent >= vEnd:
+      if pid == False:
+        robot.drive(vCurrent, 0)
+      else:
+        print("wip")
       print(str(vCurrent) + " " + str(10*abs(deg_to_cm(motor_l.speed()))))
-  brick.sound.beep(750, 50, 25)
 
-  # Suchen ----------------------------------------------------------------
-
-  robot.drive(vSearch, 0)
+def searchDeg(vSearch, deg, pidSearch = False):
+  run = True
+  if pidSearch == False:
+    robot.drive(vSearch, 0)
+  else:
+    print("wip")
   while run:
     print(str(vSearch) + " " + str(10*abs(deg_to_cm(motor_l.speed()))))
     if (abs(motor_l.angle()) >= deg or abs(motor_r.angle()) >= deg):
       run = False
   stopMotors()
 
+def pidInit():
+  global proportional
+  global last_proportional
+  global difference
+  global integral
+  global derivate
+  global error
+  global change
+  global scale
+  proportional = 0
+  last_proportional = 0
+  difference = 0
+  integral = 0
+  derivate = 0
+  error = 0
+  change = 0
+  scale = 1
+
+def pidCalc(proportional, last_proportional, scale, kp, ki, kd):
+  integral += proportional
+  derivate = last_proportional - proportional
+  error = kp * proportional + ki * integral + kd * derivate
+  change = error * scale
+  return change
+
+
+def driveSmoothly(v, s, sAcc = 15, sDec = 15, vSearch = 40, buffer = 10, pid = True):
+  pidInit()
+  target = 0
+  deg = cm_to_deg(s) * dailyDistanceFactor
+  if deg < (cm_to_deg(sAcc) + cm_to_deg(sDec)): #Überprüfung, ob Weg ausreichend ist + Anpassung
+    v = v * 0.5
+    d_k = 0.75
+  resetMotors(200000)
+  d_k = 1
+
+
+  # Beschleunigung -------------------------------------------------------
+  brick.sound.beep(750, 50, 25)
+  acceleration(v, sAcc, 0, d_k, pid)
+  v = vCurrent
+
+  # Geschwindigkeit halten -----------------------------------------------
+  brick.sound.beep(750, 50, 25)
+  degStraight = deg - degAcc - cm_to_deg(buffer)
+  straight(v, degStraight, pid)  
+
+  # Abbremsen ------------------------------------------------------------
+  brick.sound.beep(750, 50, 25)
+  deceleration(v, sDec, vSearch, deg, d_k, pid)
+
+  # Suchen ---------------------------------------------------------------
+  brick.sound.beep(750, 50, 25)
+  searchDeg(vSearch, deg)
 
   brick.sound.beep(750, 50, 25)
   print("weg in cm: " + str(deg_to_cm(abs(motor_l.angle()))))
@@ -338,11 +400,11 @@ def driveSmoothly(v, s = 0, sAcc = 15, sDec = 15, vSearch = 40, buffer = 0.25):
 #-----------------------------------------------------------
 
 def stopMotors():
-  print("stop motors")
+  #print("stop motors")
   while ((abs(motor_l.speed()) >= 10.0 or abs(motor_r.speed()) >= 10.0)):
     robot.stop(Stop.HOLD)
-    print((motor_l.speed(), motor_r.speed()))
-  print(("motor speed: ", motor_l.speed(), motor_r.speed()))
+    #print((motor_l.speed(), motor_r.speed()))
+  #print(("motor speed: ", motor_l.speed(), motor_r.speed()))
 
 #-----------------------------------------------------------
 # Ausrichten an der Bande
@@ -368,6 +430,7 @@ def alignBackward(v=70.0, tor=20.0):
 # Roboter drehen in Grad
 # deg - Drehgrad (<0.0 für Gegenuhrzeigersinn)
 def turnRobot(deg, v):
+  gyro.reset_angle(0)
   s = TURN_CIRCUM * deg / 360.0
   turn = cm_to_deg(abs(s)) * dailyTurnFactor
   resetMotors()
@@ -383,8 +446,40 @@ def turnRobot(deg, v):
     if (abs(motor_l.angle()) >= turn):                           
       run = False
   stopMotors()
+  print(gyro.angle())
 
 #------------------------------------------------------------------------#  
+def gyroTurn(deg, v):
+  if deg > 180:
+    while deg > 180:
+      deg -= 360
+  elif deg < -180:
+    while deg < -180:
+      deg += 360
+
+  print(deg)
+
+  delta = 4
+  if (deg < 0.0):
+    v = v * -1.0
+    delta = 2.5
+
+
+  gyro.reset_angle(0)
+  run = True
+
+  while True: 
+    if abs(gyro.angle()) + delta >= abs(deg):
+      break
+    motor_l.run(v)
+    motor_r.run(-v)
+  stopMotors()
+  angle = gyro.angle()
+  print(angle)
+  brick.display.text(angle , (20, 20))
+
+
+#------------------------------------------------------------------------
 def getColorLeft():
   # Werte messen
   l = col_l.reflection()

@@ -68,6 +68,5 @@ from missions        import *
 #     wait(10)
 
 
-
-driveSmoothly(300, 100)
-#alignBackward()
+pidInit()
+straight(100, 7200)
