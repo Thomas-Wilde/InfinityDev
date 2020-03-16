@@ -39,10 +39,18 @@ def cm_to_deg(dist):
   deg = dist / cm_per_deg
   return deg
 
+def mm_to_deg(dist):
+  deg = cm_to_deg(dist) / 10
+  return deg
+
 #------------------------------------------------------------------------#
 
 def deg_to_cm(deg):
   dist = deg * cm_per_deg
+  return dist
+
+def deg_to_mm(deg):
+  dist = deg_to_cm(deg) * 10
   return dist
 
 #------------------------------------------------------------------------#
@@ -175,109 +183,19 @@ def gyroDrive(v):
 
 #-----------------------------------------------------------------
 
-def sensorDrive(v):
-  wait(250)
-  target = 0
-  kp = 0.9
-  ki= 0.01
-  kd = 0.09
-  error = 0
-  diff = 0
-  integral = 0
-  prop = 0
-  last_prop = 0
-  scale = 5
-  delta = 100
-  resetMotors()
-  while True:
-    difference = motor_l.angle() - motor_r.angle()
-    prop = target - difference
-    integral += prop
-    diff = last_prop - prop
-    error = kp * prop + ki * integral + kd * diff
-    last_prop = prop
-    change = error * scale
-    #print(str(difference) + " " + str(prop) + " " + str(integral) + " " + str(diff) + " " + str(error) + " " + str(change))
-    motor_r.run(v - change)
-    motor_l.run(v + change)
-    #wait(25)
+def sensorDrive(v, last_proportional, scale = 1, kp = 1, ki = 0, kd = 0):
+  global value
+  print(str(deg_to_mm(motor_l.speed())))
+  difference = motor_l.angle() - motor_r.angle()
+  proportional = 0 - difference
+  change = pidCalc(proportional, last_proportional, scale, kp, ki, kd)
+  motor_r.run(v - change)
+  motor_l.run(v + change)
+  last_proportional = proportional
+  print(str(deg_to_mm(v + change)) + " " + str(deg_to_mm(v - change)) + " " + str(deg_to_mm(abs(motor_l.speed()))))
+  value = last_proportional
 
 #-----------------------------------------------------------
-def acceleration(v, sAcc = 15, vStart = 0,  d_k = 1, pid = True):
-  global vCurrent
-  global degAcc
-  t = 0
-  tnull = 0.4
-  tAcc = 10 * (3 * sAcc) / v                   
-  kAcc = d_k * (0.2 * v) / (tAcc**2) 
-  while (((10*abs(deg_to_cm(motor_l.speed()))) <= v) or ((10*abs(deg_to_cm(motor_r.speed()))) <= v)) and (t <= tAcc):
-    t = tnull + watch.time() / 1000
-    vCurrent = vStart + 5 * kAcc * (t**2)
-    if pid == False:                     
-      robot.drive(vCurrent, 0)
-    else:
-      print("wip")    
-    print(str(vCurrent) + " " + str(10*abs(deg_to_cm(motor_l.speed()))) + " " + str(10*abs(deg_to_cm(motor_r.speed()))))
-  degAcc = abs(motor_l.angle())
-  watch.pause()
-
-def straight(v, deg, pid = True):
-  run = True
-  if pid == False:
-    robot.drive(v, 0)
-    while run:
-      print(str(v) + " " + str(10*abs(deg_to_cm(motor_l.speed()))))
-      if (motor_l.angle() >= deg or motor_r.angle() >= deg):
-        run = False
-  else:
-    target = 0
-    kp = 1
-    ki = 0
-    kd = 0
-    scale = 1
-    last_proportional = 0
-    print("wip")
-    while run:
-      print(str(v) + " " + str(10*abs(deg_to_cm(motor_l.speed()))))
-      difference = motor_l.angle() - motor_r.angle()
-      proportional = target - difference
-      change = pidCalc(proportional, last_proportional, scale, kp, ki, kd)
-      last_proportional = proportional
-      motor_l.run(v + change)
-      motor_r.run(v - change)
-      if (motor_l.angle() >= deg or motor_r.angle() >= deg):
-        run = False
-
-def deceleration(v, sDec = 15, vEnd = 0, degToGo = 1000000000000, d_k = 1, pid = True):
-  vDec = v - vEnd
-  tDec = 3 * (3 * sDec) / vDec
-  kDec = d_k * (0.2 * v) / (tDec**2)
-  watch.reset()
-  watch.resume()
-  while ((10*abs(deg_to_cm(motor_l.speed()))) >= vEnd or (10*abs(deg_to_cm(motor_r.speed())) >= vEnd)): #or (t <= tDec):
-    if (motor_l.angle() >= degToGo or motor_r.angle() >= degToGo):
-      brick.light(Color.ORANGE)
-      break
-    t = watch.time() / 1000
-    vCurrent = v - 3 * kDec * (t**2)
-    if vCurrent >= vEnd:
-      if pid == False:
-        robot.drive(vCurrent, 0)
-      else:
-        print("wip")
-      print(str(vCurrent) + " " + str(10*abs(deg_to_cm(motor_l.speed()))))
-
-def searchDeg(vSearch, deg, pidSearch = False):
-  run = True
-  if pidSearch == False:
-    robot.drive(vSearch, 0)
-  else:
-    print("wip")
-  while run:
-    print(str(vSearch) + " " + str(10*abs(deg_to_cm(motor_l.speed()))))
-    if (abs(motor_l.angle()) >= deg or abs(motor_r.angle()) >= deg):
-      run = False
-  stopMotors()
 
 def pidInit():
   global proportional
@@ -298,44 +216,134 @@ def pidInit():
   scale = 1
 
 def pidCalc(proportional, last_proportional, scale, kp, ki, kd):
+  global integral
   integral += proportional
   derivate = last_proportional - proportional
   error = kp * proportional + ki * integral + kd * derivate
   change = error * scale
   return change
 
+#-----------------------------------------------------------
+
+def acceleration(v, sAcc = 15, vStart = 0,  d_k = 1, pid = True, last_proportional = 0):
+  global vCurrent
+  global degAcc
+  t = 0
+  tnull = 0.4
+  tAcc = 10 * (3 * sAcc) / v                   
+  kAcc = d_k * (0.2 * v) / (tAcc**2) 
+  watch.resume()
+  if pid == False:                     
+    while (((abs(deg_to_mm(motor_l.speed()))) <= v) or ((abs(deg_to_mm(motor_r.speed()))) <= v)) and (t <= tAcc):
+      t = tnull + watch.time() / 1000
+      vCurrent = vStart + 5 * kAcc * (t**2)
+      robot.drive(vCurrent, 0)
+      print(str(vCurrent) + " " + str(10*abs(deg_to_cm(motor_l.speed()))))
+  else:
+    while (((abs(deg_to_mm(motor_l.speed()))) <= v) or ((abs(deg_to_mm(motor_r.speed()))) <= v)): #and (t <= tAcc):
+      t = tnull + watch.time() / 1000
+      vCurrent = vStart + 5 * kAcc * (t**2)
+      sensorDrive(mm_to_deg(vCurrent), last_proportional)
+  degAcc = abs(motor_l.angle())
+  watch.pause()
+  watch.reset()
+
+def straight(v, deg, pid = True, last_proportional = 0):
+  run = True
+  if pid == False:
+    robot.drive(v, 0)
+    while True:
+      print(str(v) + " " + str(deg_to_mm(motor_l.speed())))
+      if (motor_l.angle() >= deg or motor_r.angle() >= deg):
+        break
+  else:
+    while True:
+      if (motor_l.angle() >= deg or motor_r.angle() >= deg):
+        break
+      sensorDrive(mm_to_deg(v), last_proportional)
+
+def deceleration(v, sDec = 15, vEnd = 0, degToGo = 1000000000000, d_k = 1, pid = True, last_proportional = 0):
+  vDec = v - vEnd
+  tDec = 3 * (3 * sDec) / vDec
+  kDec = d_k * (0.2 * v) / (tDec**2)
+  watch.resume()
+  t = 0
+  if pid == False:
+    while ((abs(deg_to_mm(motor_l.speed()))) >= vEnd or (abs(deg_to_mm(motor_r.speed())) >= vEnd)) and (t <= tDec):
+      if (motor_l.angle() >= degToGo - 90 or motor_r.angle() >= degToGo - 90):
+        brick.light(Color.ORANGE)
+        break
+      t = watch.time() / 1000
+      vCurrent = v - 3 * kDec * (t**2)
+      if vCurrent >= vEnd:
+        robot.drive(vCurrent, 0)
+        print(str(vCurrent) + " " + str(10*abs(deg_to_cm(motor_l.speed()))))
+  else:
+    while ((abs(deg_to_mm(motor_l.speed()))) >= vEnd or (abs(deg_to_mm(motor_r.speed())) >= vEnd)) and (t <= tDec):
+      if (motor_l.angle() >= degToGo or motor_r.angle() >= degToGo):
+        brick.light(Color.ORANGE)
+        break
+      t = watch.time() / 1000
+      vCurrent = v - 3 * kDec * (t**2)
+      if vCurrent >= vEnd:
+        sensorDrive(mm_to_deg(vCurrent), last_proportional)
+  watch.pause()
+  watch.reset()
+
+def searchDeg(vSearch, deg, pidSearch = True, last_proportional = 0):
+  run = True
+  if pidSearch == False:
+    robot.drive(vSearch, 0)
+    while True:
+      print(str(vSearch) + " " + str(abs(deg_to_mm(motor_l.speed()))))
+      if (abs(motor_l.angle()) >= deg - vSearch or abs(motor_r.angle()) >= deg - vSearch):
+        break
+  else:
+    while True:
+      if (abs(motor_l.angle()) >= deg or abs(motor_r.angle()) >= deg):
+        break
+      sensorDrive(mm_to_deg(vSearch), last_proportional)
+      print(str(vSearch) + " " + str(abs(deg_to_mm(motor_l.speed()))))
+  stopMotors()
+
+
 
 def driveSmoothly(v, s, sAcc = 15, sDec = 15, vSearch = 40, buffer = 10, pid = True):
   pidInit()
   target = 0
+  last_proportional = 0
   deg = cm_to_deg(s) * dailyDistanceFactor
+  d_k = 1
   if deg < (cm_to_deg(sAcc) + cm_to_deg(sDec)): #Überprüfung, ob Weg ausreichend ist + Anpassung
     v = v * 0.5
     d_k = 0.75
   resetMotors(200000)
-  d_k = 1
 
-
-  # Beschleunigung -------------------------------------------------------
+  # Beschleunigung
   brick.sound.beep(750, 50, 25)
-  acceleration(v, sAcc, 0, d_k, pid)
+  acceleration(v, sAcc, 0, d_k, pid, last_proportional)
   v = vCurrent
-
-  # Geschwindigkeit halten -----------------------------------------------
+  last_proportional = value
+  print(deg_to_cm(degAcc))
+  print("finish")
+  # Geschwindigkeit halten
   brick.sound.beep(750, 50, 25)
   degStraight = deg - degAcc - cm_to_deg(buffer)
-  straight(v, degStraight, pid)  
-
-  # Abbremsen ------------------------------------------------------------
+  straight(v, degStraight, pid, last_proportional)  
+  last_proportional = value
+  print("finish")
+  # Abbremsen
   brick.sound.beep(750, 50, 25)
-  deceleration(v, sDec, vSearch, deg, d_k, pid)
-
-  # Suchen ---------------------------------------------------------------
+  deceleration(v, sDec, vSearch, deg, d_k, pid, last_proportional)
+  last_proportional = value
+  print("finish")
+  # Suchen
   brick.sound.beep(750, 50, 25)
-  searchDeg(vSearch, deg)
-
+  searchDeg(vSearch, deg, pid, last_proportional)
+  print("finish")
   brick.sound.beep(750, 50, 25)
   print("weg in cm: " + str(deg_to_cm(abs(motor_l.angle()))))
+  print(str(motor_l.angle()) + "  " + str(motor_r.angle()))
 
   # robot.drive(10, 0)
   # piece = 0.1
@@ -400,11 +408,11 @@ def driveSmoothly(v, s, sAcc = 15, sDec = 15, vSearch = 40, buffer = 10, pid = T
 #-----------------------------------------------------------
 
 def stopMotors():
-  #print("stop motors")
+  print("stop motors")
   while ((abs(motor_l.speed()) >= 10.0 or abs(motor_r.speed()) >= 10.0)):
     robot.stop(Stop.HOLD)
-    #print((motor_l.speed(), motor_r.speed()))
-  #print(("motor speed: ", motor_l.speed(), motor_r.speed()))
+    print((motor_l.speed(), motor_r.speed()))
+  print(("motor speed: ", motor_l.speed(), motor_r.speed()))
 
 #-----------------------------------------------------------
 # Ausrichten an der Bande

@@ -68,6 +68,4 @@ from missions        import *
 #     wait(10)
 
 
-
 driveSmoothly(300, 100)
-#alignBackward()
